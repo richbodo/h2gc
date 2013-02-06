@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 import os
+import subprocess
 import re
+import StringIO
 
 # Check the status of storage devices, and return a detailed report
 #
@@ -20,7 +22,10 @@ def check_drive_status():
                 print ("found device " + current_device + " which has removable status " + isremovable)
             
     # Make a list of the mounted devices and their usage
-    mounts = os.popen('df -h')
+    # REFACTOR            
+    out = '\n'.join(subprocess.check_output(["df", "-h"]).splitlines())
+    mounts = StringIO.StringIO(out)
+
     line_num = 0
     for line in mounts.readlines():
         # Get rid of header line
@@ -42,18 +47,19 @@ def check_drive_status():
 
 def check_user_status():
     # would probably be nice to require auditd, but for now:
-    md5sum_shadow = os.popen('md5sum /etc/shadow')
-    print "md5sum of shadow file: " + md5sum_shadow
-    
+    # REFACTOR 
+    out = '\n'.join(subprocess.check_output(["sudo", "md5sum", "/etc/shadow"]).splitlines())
+    md5sum_shadow = StringIO.StringIO(out).readline()
+    print "Shadow md5: " + md5sum_shadow
 
 def post_report():
     print "post report to google server and to local logs here"
     print "Report results:"
 
 def main():
-    check_fixed_drive_status();
+    check_drive_status();
     check_user_status();
-    post_report();
+    #post_report();
 
 if __name__ == '__main__':
     main()
