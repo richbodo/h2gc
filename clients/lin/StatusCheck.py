@@ -4,6 +4,7 @@ import os
 import re
 
 # Check the status of storage devices, and return a detailed report
+#
 def check_drive_status():
     # Make a list of the removable devices
     root="/sys/block"
@@ -26,6 +27,7 @@ def check_drive_status():
         line_num += 1
         if (line_num == 1):
             continue
+        # 
         parts = line.split()
         device, size, used, avail, use_percent, mounted_on = parts
         # if device starts with /dev/, then note mount point and usage
@@ -39,8 +41,10 @@ def check_drive_status():
     print "Fixed drive status evaluation:"
 
 def check_user_status():
-    print "check user status goes here"
-    print "User status evaluation:"
+    # would probably be nice to require auditd, but for now:
+    md5sum_shadow = os.popen('md5sum /etc/shadow')
+    print "md5sum of shadow file: " + md5sum_shadow
+    
 
 def post_report():
     print "post report to google server and to local logs here"
