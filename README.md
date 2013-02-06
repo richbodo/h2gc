@@ -1,4 +1,5 @@
 h2gc
 ====
 
-HitchHikers Guide to your Computer
+The HitchHikers Guide to your Computer is a wholly remarkable program
+
