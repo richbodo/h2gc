@@ -1,0 +1,9 @@
+{
+    "name": "h2gc-admin",
+    "description": "Admin interface to the Hitch Hikers Guide to your Computer",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+	"express": "3.x"
+    }
+}

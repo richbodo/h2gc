@@ -4,8 +4,10 @@ import os
 import subprocess
 import re
 import StringIO
+import json
+import urllib2
 
-# Check the status of storage devices, and return a detailed report
+# Check the status of storage devices
 #
 def check_drive_status():
     # Make a list of the removable devices
@@ -22,7 +24,7 @@ def check_drive_status():
                 print ("found device " + current_device + " which has removable status " + isremovable)
             
     # Make a list of the mounted devices and their usage
-    # REFACTOR            
+    # REFACTOR - this string manip works, but can't possibly be the right way to do it
     out = '\n'.join(subprocess.check_output(["df", "-h"]).splitlines())
     mounts = StringIO.StringIO(out)
 
@@ -44,22 +46,33 @@ def check_drive_status():
     print "SMART data check goes here"
     # Evaluate data
     print "Fixed drive status evaluation:"
+    return 0
 
+# Check to see if any user accounts have changed
+#
 def check_user_status():
-    # would probably be nice to require auditd, but for now:
+    # would probably be nice to require auditd, but for now just see if shadow has changed:
     # REFACTOR 
     out = '\n'.join(subprocess.check_output(["sudo", "md5sum", "/etc/shadow"]).splitlines())
     md5sum_shadow = StringIO.StringIO(out).readline()
     print "Shadow md5: " + md5sum_shadow
+    return 0
 
-def post_report():
-    print "post report to google server and to local logs here"
-    print "Report results:"
+def post_report(computer, status):
+    # REFACTOR - report errors 
+    print "Report results: computer: " + str(computer) + " status:" + str(status)
+    url = "http://localhost:3000/logs"
+    data = json.dumps({"computer": str(computer), "status": str(status)})
+    req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
+    f = urllib2.urlopen(req)
+    response = f.read()
+    f.close()
 
 def main():
-    check_drive_status();
-    check_user_status();
-    #post_report();
+    status=0
+    status += check_drive_status();
+    status += check_user_status();
+    post_report("grandma@example.com", status)
 
 if __name__ == '__main__':
     main()
