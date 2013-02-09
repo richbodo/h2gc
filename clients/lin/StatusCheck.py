@@ -31,10 +31,9 @@ class StorageDevice:
 # Get mounted storage device info
 #
 # precondition: gnu mount v2.20.1 output format
-# returns: list of StorageDevice objects that are mounted and their %usage
+# modifies: list of StorageDevice objects that are mounted and their %usage
 #
-def get_mounted_storage_device_info():
-    devicelist=[]
+def get_mounted_storage_device_info(mounted_list):
     # Make a list of the mounted devices and their usage
     # REFACTOR - this string manip works, but can't possibly be the right way to do it
     out = '\n'.join(subprocess.check_output(["df", "-h"]).splitlines())
@@ -52,21 +51,21 @@ def get_mounted_storage_device_info():
         # if device starts with /dev/, then note mount point and usage
         m = re.search('/dev/.+', device)
         if (m != None):
-            print "Found " + device + " mounted on " + mounted_on + " with Use% " + use_percent
+            #print "Found " + device + " mounted on " + mounted_on + " with Use% " + use_percent
             deviceobject=StorageDevice()
             deviceobject.devname=device
             deviceobject.mountpoint = mounted_on
             deviceobject.percentused = use_percent
-            devicelist.append(deviceobject)
-    return devicelist
+            mounted_list.append(deviceobject)
+    return 0
 
 # get mounted, "fixed" storage device data
 #
 # precondition: output format of gnu df 8.1.3 
 # arguments: pass a list of StorageDevice objects 
-# returns: subset of passed list - devices both mounted and non-removable
+# modifies: subset of passed list - devices both mounted and non-removable
 #
-def get_mounted_fixed_storage_device_data(devicelist):
+def get_mounted_fixed_storage_device_data(mounted_list, mounted_fixed_list):
     # Make a list of the non-removable devices
     blockdevroot="/sys/block"
     for device in os.listdir(blockdevroot):
@@ -77,21 +76,33 @@ def get_mounted_fixed_storage_device_data(devicelist):
             isremovable=f.read(1)
             f.close()
             if (isremovable == "0") : 
-                print ("found device " + devicepath + " which is not removable: " + isremovable)
-            else:
-                print ("found device " + devicepath + " which is removable: " + isremovable)
-    return devicelist
+                # print ("found device " + devicepath + " which is fixed: " + isremovable)
+                # if devicepath matches an object in mounted_list (devname) then copy that object to mounted_fixed_list
+                for mounted_device in mounted_list:
+                    fd = re.search('/sys/block/(.+)',devicepath).group(1) 
+                    md = re.search('/dev/(.+)\d+',mounted_device.devname).group(1)
+                    if  fd == md:
+                        print "Sys block device: " + fd + " matches device name: " + md + " within mounted partition name: " + mounted_device.devname
+                        mounted_fixed_list.append(mounted_device)
+                    else:
+                        print "no match because: " + fd + " is not " + md
+            #else:
+                #print ("found device " + devicepath + " which is removable: " + isremovable)
+    # Compile list of devices that are both mounted and fixed
+    return 0
 
 # Add device smart health
 #
 # precondition: output of smartctl v5.4.3
 # arguments: pass list of StorageDevice objects
-# returns: list of StorageDevice objects annotated with smart health 
+# modifies: list of StorageDevice objects annotated with smart health 
 # 
-def add_device_smart_health(devicelist):
+def add_device_smart_health(mounted_fixed_list, completed_drive_status_list):
     # Get SMART data from mounted devices, if possible
-    # NOTE might need to require smartmontools
+    # NOTE might need to require smartmontools, don't know of another way to get this
+
     # for all mounted, non-removable devices
+    #for device in mounted_fixed_list:
             # smartreport = sudo smartctl -H device
                 # deviceobject.smartreport = smartreport
             # if ! grep for PASSED:
@@ -100,33 +111,35 @@ def add_device_smart_health(devicelist):
                 # deviceobject.smarthealth = PASSED
 
     print "SMART data check goes here"
-    # Evaluate data
-    print "Overall fixed drive status evaluation:"
-    return devicelist
+    return 0
 
 # Log the analysis of drives to local log file
 #
-def log_drive_data(sd_ob_list):
+def log_storage_data(sd_ob_list):
+    result = 0
     for i in sd_ob_list:
         print i
-    return 0
+        if i.percentused >= 90:
+            result += 5
+        if i.smartstatus != "PASSED":
+            result += 100
+    
+    return result
 
 # Check the status of storage devices
 #
 # returns: 0 if all drives are o.k., 1 if any drive is problematic
 #
 def check_drive_status():
+    drive_status=0
     mounted_list=[]
     mounted_fixed_list=[]
     completed_drive_status_list=[]
 
-    mounted_list = get_mounted_storage_device_info()
-
-    mounted_fixed_list = get_mounted_fixed_storage_device_data(mounted_list)
-
-    completed_drive_status_list = add_device_smart_health(mounted_fixed_list)
-
-    drive_status = log_drive_data(completed_drive_status_list)
+    get_mounted_storage_device_info(mounted_list)
+    get_mounted_fixed_storage_device_data(mounted_list, mounted_fixed_list)
+    #add_device_smart_health(mounted_fixed_list, completed_drive_status_list)
+    drive_status = log_storage_data(mounted_fixed_list) 
 
     return drive_status
 
@@ -158,6 +171,7 @@ def main():
     status += check_drive_status();
     status += check_user_status();
     # post_report("grandma@example.com", status)
+    print "Overall status: " + str(status)
     print "Done."
 
 if __name__ == '__main__':
