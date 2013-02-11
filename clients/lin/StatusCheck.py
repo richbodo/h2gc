@@ -27,11 +27,10 @@ class StorageDevice:
                 "SMART Report: " + str(self.smartreport) + "\n"
                 "SMART Health Summary Status: " + str(self.smartstatus) + "\n")	
 
-
 # Get mounted storage device info
 #
-# precondition: gnu mount v2.20.1 output format
-# modifies: list of StorageDevice objects that are mounted and their %usage
+# Precondition: gnu mount v2.20.1 output format
+# Modifies: list of StorageDevice objects that are mounted and their %usage
 #
 def get_mounted_storage_device_info(mounted_list):
     # Make a list of the mounted devices and their usage
@@ -49,24 +48,26 @@ def get_mounted_storage_device_info(mounted_list):
         # REFACTOR - robustness
         device, size, used, avail, use_percent, mounted_on = parts
         # if device starts with /dev/, then note mount point and usage
-        m = re.search('/dev/.+', device)
+        m = re.search('/dev/.+\d+',device)
         if (m != None):
-            #print "Found " + device + " mounted on " + mounted_on + " with Use% " + use_percent
             deviceobject=StorageDevice()
-            deviceobject.devname=device
+            deviceobject.devname = re.search('(/dev/.+)\d+',device).group(1)
+            deviceobject.mounted = 1
             deviceobject.mountpoint = mounted_on
             deviceobject.percentused = use_percent
             mounted_list.append(deviceobject)
+            print "Found " + deviceobject.devname + " mounted on " + deviceobject.mountpoint + " with Use% " + deviceobject.percentused
     return 0
 
 # get mounted, "fixed" storage device data
 #
-# precondition: output format of gnu df 8.1.3 
-# arguments: pass a list of StorageDevice objects 
-# modifies: subset of passed list - devices both mounted and non-removable
+# Precondition: output format of gnu df 8.1.3 
+# Arguments: pass a list of StorageDevice objects 
+# Modifies: subset of passed list - devices both mounted and non-removable
 #
 def get_mounted_fixed_storage_device_data(mounted_list, mounted_fixed_list):
     # Make a list of the non-removable devices
+    print "Starting to look at fixed."
     blockdevroot="/sys/block"
     for device in os.listdir(blockdevroot):
         devicepath=os.path.join(blockdevroot, device)        
@@ -76,42 +77,47 @@ def get_mounted_fixed_storage_device_data(mounted_list, mounted_fixed_list):
             isremovable=f.read(1)
             f.close()
             if (isremovable == "0") : 
-                # print ("found device " + devicepath + " which is fixed: " + isremovable)
-                # if devicepath matches an object in mounted_list (devname) then copy that object to mounted_fixed_list
+                # if devicepath matches an object in mounted_list (devname) then it is fixed
+                #      copy that object to mounted_fixed_list
                 for mounted_device in mounted_list:
+                    print "About to compare: " + devicepath + " With: " + mounted_device.devname
+                    # REFACTOR - handle match not found for both of these
                     fd = re.search('/sys/block/(.+)',devicepath).group(1) 
-                    md = re.search('/dev/(.+)\d+',mounted_device.devname).group(1)
+                    md = re.search('/dev/(.+)',mounted_device.devname).group(1)
                     if  fd == md:
-                        print "Sys block device: " + fd + " matches device name: " + md + " within mounted partition name: " + mounted_device.devname
+                        mounted_device.removable = 0
                         mounted_fixed_list.append(mounted_device)
                     else:
                         print "no match because: " + fd + " is not " + md
-            #else:
-                #print ("found device " + devicepath + " which is removable: " + isremovable)
-    # Compile list of devices that are both mounted and fixed
     return 0
 
 # Add device smart health
 #
-# precondition: output of smartctl v5.4.3
-# arguments: pass list of StorageDevice objects
-# modifies: list of StorageDevice objects annotated with smart health 
+# Precondition: output of smartctl v5.4.3
+# Arguments: pass list of StorageDevice objects
+# Modifies: list of StorageDevice objects annotated with smart health 
 # 
 def add_device_smart_health(mounted_fixed_list, completed_drive_status_list):
-    # Get SMART data from mounted devices, if possible
-    # NOTE might need to require smartmontools, don't know of another way to get this
+    # for all mounted, non-removable devices, check SMART health
+    for device in mounted_fixed_list:
+        result = "UNKNOWN"
+        device.smartreport = ""
+        device_name = device.devname
 
-    # for all mounted, non-removable devices
-    #for device in mounted_fixed_list:
-            # smartreport = sudo smartctl -H device
-                # deviceobject.smartreport = smartreport
-            # if ! grep for PASSED:
-                # deviceobject.smarthealth = FAIL
-            # else 
-                # deviceobject.smarthealth = PASSED
-
-    print "SMART data check goes here"
-    return 0
+        print "about to get data for : " + device_name
+        out = subprocess.check_output(["sudo", "smartctl", "-H", device_name])
+        print "Smart data for: " + device_name + " is: " 
+        outlines = iter(out.splitlines())
+        for line in outlines:
+            print line       
+            device.smartreport += line
+            pattern =  re.compile('SMART overall-health self-assessment test result: (.+)')
+            if pattern.search(line) == None:
+                continue
+            else:
+                result = pattern.search(line).group(1)
+        device.smartstatus = result
+        return 0
 
 # Log the analysis of drives to local log file
 #
@@ -138,7 +144,7 @@ def check_drive_status():
 
     get_mounted_storage_device_info(mounted_list)
     get_mounted_fixed_storage_device_data(mounted_list, mounted_fixed_list)
-    #add_device_smart_health(mounted_fixed_list, completed_drive_status_list)
+    add_device_smart_health(mounted_fixed_list, completed_drive_status_list)
     drive_status = log_storage_data(mounted_fixed_list) 
 
     return drive_status
