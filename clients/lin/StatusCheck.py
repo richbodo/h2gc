@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 import os
+import sys
+import traceback
 import subprocess
 import re
 import StringIO
 import json
 import urllib2
+import ConfigParser
 import storage_checks
 import security_checks
 
@@ -69,12 +72,14 @@ def log_storage_data(sd_ob_list):
         if i.smartstatus != "PASSED":
             result += 100
     
+    
     return result
 
 # Log security data to local log file
 #
 def log_security_data(sec_ob_list):
     result = 0
+
     # for i in sec_ob_list:
     #     print i
     #     if i.percentused >= 90:
@@ -84,16 +89,62 @@ def log_security_data(sec_ob_list):
     
     return result
 
+# Get the config file data into a configparser object
+# REFACTOR - as with everything else, just the barest of error checking
+# remove the .h2gc directory to regenerate
+def get_config():
+    parser = ConfigParser.SafeConfigParser()
+    config_dir = os.path.expanduser("~") + "/.h2gc/"
+    config_file = "main_config"
+    full_config = config_dir + config_file
+    print "full_config: " + full_config
+
+    try:
+        config_handle = open(full_config, 'w+')
+    except IOError:
+         if not os.path.isdir(config_dir):
+             print "Config directory does not exist.  First run assumed.  Creating.  Might want to do something else."
+             os.makedirs(config_dir, mode=0700)
+             config_handle = open(full_config, 'w+')
+             parser.add_section('Security')
+             shadow_md5sum = security_checks.check_shadow_status()
+             parser.set('Security', 'shadowmd5', shadow_md5sum)
+             parser.write(config_handle)    
+         else:
+             print "Some other error opening the file.  Need to think about this."
+             return 1
+
+    try:
+        parser.readfp(config_handle,full_config)
+    except ConfigParser.ParsingError, err:
+        print 'Could not parse - config file borked: ' , err
+        print "Add some code to do something sensible."
+        return 1
+
+    return parser
+
 def main():
     status=0
     storage_list=[]
     security_list=[]
 
-    status += check_storage_status(storage_list);
+    config_p=get_config()
+    if config_p == 1: 
+        print "Need more work on config file stuff"
+        sys.exit(1)
+
+    print config_p.get('Security', 'shadowmd5', 0)
+    sys.exit(0)
+
+    # Call functions to check system health and log to logfile
+    #
+    status += check_storage_status(storage_list)
     log_storage_data(storage_list) 
-    status += check_security_status(security_list);
+    status += check_security_status(security_list, config_p)
     log_security_data(security_list)
 
+    # Post status to server if available
+    #
     post_report("grandma@example.com", status)
     print "Overall status: " + str(status)
     print "Done."

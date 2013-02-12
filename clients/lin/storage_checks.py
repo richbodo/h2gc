@@ -79,7 +79,6 @@ def get_mounted_fixed_storage_device_data(mounted_list, mounted_fixed_list):
                 # if devicepath matches an object in mounted_list (devname) then it is fixed
                 #      copy that object to mounted_fixed_list
                 for mounted_device in mounted_list:
-                    print "About to compare: " + devicepath + " With: " + mounted_device.devname
                     # REFACTOR - handle match not found for both of these
                     fd = re.search('/sys/block/(.+)',devicepath).group(1) 
                     md = re.search('/dev/(.+)',mounted_device.devname).group(1)
@@ -87,7 +86,7 @@ def get_mounted_fixed_storage_device_data(mounted_list, mounted_fixed_list):
                         mounted_device.removable = 0
                         mounted_fixed_list.append(mounted_device)
                     else:
-                        print "no match because: " + fd + " is not " + md
+                        pass
     return 0
 
 # Add device smart health
