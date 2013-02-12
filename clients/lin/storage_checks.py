@@ -1,3 +1,7 @@
+# storage_checks.py - module to contain storage checks for linux client
+# Status: Some of the actual storage checking stuff I want is here, needs tests and more checks 
+#
+
 import os
 import subprocess
 import re
@@ -49,13 +53,13 @@ def get_mounted_storage_device_info(mounted_list):
         # if device starts with /dev/, then note mount point and usage
         m = re.search('/dev/.+\d+',device)
         if (m != None):
-            deviceobject=StorageDevice()
+            deviceobject = StorageDevice()
             deviceobject.devname = re.search('(/dev/.+)\d+',device).group(1)
             deviceobject.mounted = 1
             deviceobject.mountpoint = mounted_on
             deviceobject.percentused = use_percent
             mounted_list.append(deviceobject)
-            print "Found " + deviceobject.devname + " mounted on " + deviceobject.mountpoint + " with Use% " + deviceobject.percentused
+            # print "Found " + deviceobject.devname + " mounted on " + deviceobject.mountpoint + " with Use% " + deviceobject.percentused
     return 0
 
 # get mounted, "fixed" storage device data
@@ -66,7 +70,6 @@ def get_mounted_storage_device_info(mounted_list):
 #
 def get_mounted_fixed_storage_device_data(mounted_list, mounted_fixed_list):
     # Make a list of the non-removable devices
-    print "Starting to look at fixed."
     blockdevroot="/sys/block"
     for device in os.listdir(blockdevroot):
         devicepath=os.path.join(blockdevroot, device)        
@@ -102,13 +105,12 @@ def add_device_smart_health(mounted_fixed_list, completed_drive_status_list):
         device.smartreport = ""
         device_name = device.devname
 
-        print "about to get data for : " + device_name
         out = subprocess.check_output(["sudo", "smartctl", "-H", device_name])
-        print "Smart data for: " + device_name + " is: " 
+        # print "Smart data for: " + device_name + " is: " 
         outlines = iter(out.splitlines())
         pattern =  re.compile('SMART overall-health self-assessment test result: (.+)')
         for line in outlines:
-            print line       
+            # print line       
             device.smartreport += line
             if pattern.search(line) == None:
                 continue
