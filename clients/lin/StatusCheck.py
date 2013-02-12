@@ -89,9 +89,20 @@ def log_security_data(sec_ob_list):
     
     return result
 
+# Create the minimum config file that will work if none exists
+#
+#
+def init_config_file(parser, config_handle):
+    parser.add_section('Security')
+    shadow_md5sum = security_checks.check_shadow_status()
+    parser.set('Security', 'shadowmd5', shadow_md5sum)
+    parser.write(config_handle)    
+    return parser
+    
+
 # Get the config file data into a configparser object
-# REFACTOR - as with everything else, just the barest of error checking
-# remove the .h2gc directory to regenerate
+#
+#
 def get_config():
     parser = ConfigParser.SafeConfigParser()
     config_dir = os.path.expanduser("~") + "/.h2gc/"
@@ -102,35 +113,47 @@ def get_config():
     try:
         config_handle = open(full_config, 'w+')
     except IOError:
-         if not os.path.isdir(config_dir):
-             print "Config directory does not exist.  First run assumed.  Creating.  Might want to do something else."
-             os.makedirs(config_dir, mode=0700)
-             config_handle = open(full_config, 'w+')
-             parser.add_section('Security')
-             shadow_md5sum = security_checks.check_shadow_status()
-             parser.set('Security', 'shadowmd5', shadow_md5sum)
-             parser.write(config_handle)    
-         else:
-             print "Some other error opening the file.  Need to think about this."
-             return 1
-
+        if not os.path.isdir(config_dir):
+            print "Config directory does not exist.  First run assumed.  Creating."
+            os.makedirs(config_dir, mode=0700)
+            config_handle = open(full_config, 'w+')
+            init_config_file(parser, config_handle)
+        else:
+            print "Some other error opening the config file.  Need to think about this."
+            return 1
     try:
         parser.readfp(config_handle,full_config)
     except ConfigParser.ParsingError, err:
-        print 'Could not parse - config file borked: ' , err
+        print 'Could not parse the file - config file borked: ', err
         print "Add some code to do something sensible."
         return 1
 
+    try: 
+        parser.get('Security', 'shadowmd5', 0)
+    except:
+        print "Didn't find the security section in the config file, lets try initializing again."
+        init_config_file(parser,config_handle)            
+        try:
+            parser.get('Security', 'shadowmd5', 0)
+        except:
+            print "o.k. I give up, can't quite get this config file initialized for some reason."
+            return 1
+
     return parser
 
+################################
+#
+#
+#
 def main():
     status=0
     storage_list=[]
     security_list=[]
 
     config_p=get_config()
-    if config_p == 1: 
-        print "Need more work on config file stuff"
+
+    if config_p == 1:
+        print "Config file cannot be opened or initialized."
         sys.exit(1)
 
     print config_p.get('Security', 'shadowmd5', 0)
