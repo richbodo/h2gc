@@ -13,6 +13,8 @@ import security_checks
 
 # POST log entry to server
 #
+# NOTE: every time we fail to reach a serve we should add one to the overall status
+#
 def post_report(computer, status):
     url = "http://localhost:3000/logs"
 
@@ -31,7 +33,7 @@ def post_report(computer, status):
     else:
         print "Successfully posted data."
         response = f.read()
-        print "Server says" + response
+        print "Server says: " + response
         f.close()
 
 # Check the status of storage devices
@@ -53,11 +55,17 @@ def check_storage_status(storage_list):
 #
 # returns: 0 if no prob found, 1 or more if any issue is found
 #
-def check_security_status(security_list):
+def check_security_status(security_list, config_file_parser):
     security_status = 0
 
     print "checking security status."
-    security_status += security_checks.check_shadow_status()
+    current_md5 = security_checks.check_shadow_status()
+    stored_md5 = config_file_parser.get('Security', 'shadowmd5', 0)
+    if current_md5.strip() != stored_md5.strip():
+        security_status += 50
+        print "Security status is 50 because: " + current_md5 + " is NOT the same as: " + stored_md5
+    else:
+        print "Security status is still zero because: " + current_md5 + " is the same as: " + stored_md5
     return security_status
 
 # Log the analysis of drives to local log file
@@ -72,10 +80,9 @@ def log_storage_data(sd_ob_list):
         if i.smartstatus != "PASSED":
             result += 100
     
-    
     return result
 
-# Log security data to local log file
+# Log analysis of security data to local log file
 #
 def log_security_data(sec_ob_list):
     result = 0
@@ -101,7 +108,7 @@ def init_config_file(parser, config_handle):
     
 
 # Get the config file data into a configparser object
-#
+# REFACTOR - more error handling and better usage of configparser
 #
 def get_config():
     parser = ConfigParser.SafeConfigParser()
@@ -110,39 +117,27 @@ def get_config():
     full_config = config_dir + config_file
     print "full_config: " + full_config
 
-    try:
+    if not os.path.isdir(config_dir):
+        print "Config directory does not exist.  First run assumed.  Creating.  Initializing"
+        os.makedirs(config_dir, mode=0700)
         config_handle = open(full_config, 'w+')
-    except IOError:
-        if not os.path.isdir(config_dir):
-            print "Config directory does not exist.  First run assumed.  Creating."
-            os.makedirs(config_dir, mode=0700)
-            config_handle = open(full_config, 'w+')
-            init_config_file(parser, config_handle)
-        else:
-            print "Some other error opening the config file.  Need to think about this."
-            return 1
-    try:
-        parser.readfp(config_handle,full_config)
-    except ConfigParser.ParsingError, err:
-        print 'Could not parse the file - config file borked: ', err
-        print "Add some code to do something sensible."
-        return 1
+        init_config_file(parser, config_handle)
 
+    try:
+        parser.read(full_config)
+    except ConfigParser.ParsingError, err:
+        print "Can't read config file, got error: ", err
+        
     try: 
-        parser.get('Security', 'shadowmd5', 0)
+        md5out = parser.get('Security', 'shadowmd5', 0) 
     except:
-        print "Didn't find the security section in the config file, lets try initializing again."
-        init_config_file(parser,config_handle)            
-        try:
-            parser.get('Security', 'shadowmd5', 0)
-        except:
-            print "o.k. I give up, can't quite get this config file initialized for some reason."
-            return 1
+        print "Didn't find the security/shadomd5 option or something like that."     
+
+    print "If anything was read, it was: " + md5out
 
     return parser
 
 ################################
-#
 #
 #
 def main():
@@ -155,9 +150,6 @@ def main():
     if config_p == 1:
         print "Config file cannot be opened or initialized."
         sys.exit(1)
-
-    print config_p.get('Security', 'shadowmd5', 0)
-    sys.exit(0)
 
     # Call functions to check system health and log to logfile
     #
