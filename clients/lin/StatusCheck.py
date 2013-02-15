@@ -1,14 +1,33 @@
 #!/usr/bin/env python
 
 # StatusCheck.py - main system status check daemon for h2gc-linux
-# Status: needs to be daemonized, add rotating log file, rotating data file, tests
+# Status: basically works.  needs to be daemonized, add rotating log file, rotating data file, tests
 #
-# Maybe todo: break out all individual checks into their own scripts.
-# Simplest possible interface for adding new checks is to require all data go to stdout,
-# Summary data to scriptname.log, return zero on no prob and 1 on error.
-# However, maybe I also want scriptname.plainenglish.txt for describing issue to end user,
-# and googleit.log for the google search url the user can use to find more info.
+# Todo: break out all individual checks into their own scripts as below:
 #
+# Check script must follow rules:
+#
+# 1) All scripts create a subdirectory named "checkname" with an executable called "checkname" in it.
+# 2) All scripts return 0 on success, or a number on fail (1 means possibly a little bad, 100 means must fix immediately).
+# 3) Scripts should fill out a section of the .ini file as follows:
+#
+#    [checkname]
+#    description = "what this check does and how it works for end users"
+#    status_happy_explanation = "description of what it means for this check to be o.k. for end users"
+#    status_sad_explanation = "description of what it means for this check to be o.k. for end users"    
+#    url = "http://url the user can go to for help"
+#
+# Check script optional rules:
+# 
+# In the check scripts subdirectory, OPTIONALLY include:
+#
+# teaching.txt - teach user about the check, how it works, and the issue in general
+# logfile.txt - detailed ascii log of all checks (StatusCheck.py will truncate for you)
+# cron.txt - if this file is here then StatusCheck.py will not run the check, instead it will check the contents of this file for
+#            a single integer between 0 and 100, and report that as a result. 
+#
+
+
 
 import os
 import sys
@@ -27,6 +46,7 @@ class Status:
         self.overall = 0
     def __str__(self):
         return (str(self.overall))
+
 
 # POST log entry to server
 # modifies: status object

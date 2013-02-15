@@ -1,5 +1,5 @@
 //
-// testing icon manipulation in the gnome tray
+// testing icon manipulation in the gnome3 top panel
 //
 // status: Barely works - gnome-extensions are a PITA to develop 
 //
