@@ -3,6 +3,12 @@
 # StatusCheck.py - main system status check daemon for h2gc-linux
 # Status: needs to be daemonized, add rotating log file, rotating data file, tests
 #
+# Maybe todo: break out all individual checks into their own scripts.
+# Simplest possible interface for adding new checks is to require all data go to stdout,
+# Summary data to scriptname.log, return zero on no prob and 1 on error.
+# However, maybe I also want scriptname.plainenglish.txt for describing issue to end user,
+# and googleit.log for the google search url the user can use to find more info.
+#
 
 import os
 import sys
@@ -15,15 +21,6 @@ import urllib2
 import ConfigParser
 import storage_checks
 import security_checks
-
-class SecurityItem:
-    def __init__(self):
-        self.lastmd5 = ''
-        self.currmd5 = ''
-    def __str__(self):        
-        return ("Security Item Object\n"
-                "Last shadow file md5sum: " + str(self.lastmd5) + "\n"
-                "Current shadow file md5sum: " + str(self.currmd5) + "\n")
 
 class Status:
     def __init__(self):
@@ -74,7 +71,7 @@ def check_storage_status(storage_list):
 # modifies: security list
 #
 def check_security_status(security_list, config_file_parser):
-    md5item = SecurityItem()
+    md5item = security_checks.SecurityItem()
     md5item.currmd5 = security_checks.check_shadow_status()
     md5item.lastmd5 = config_file_parser.get('Security', 'shadowmd5', 0)    
     security_list.append(md5item)
