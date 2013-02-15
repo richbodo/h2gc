@@ -22,3 +22,5 @@ dist-zip:
 clean:
 	@-rm -fv uptime-indicator.zip
 
+debug:
+	@tail -F ~/.cache/gdm/session.log
