@@ -103,7 +103,7 @@ const DemoButton = new Lang.Class({
 	// }
 	
 	// this works, but throws an exception
-	//
+	// try changing the icon name as well
 	this._topLayout.add_actor(this._buttonIconSad);
 	this._topLayout.remove_actor(this._buttonIconHappy);
         return true;    

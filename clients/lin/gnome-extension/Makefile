@@ -1,26 +1,40 @@
-destdir=$(HOME)/.local/share/gnome-shell/extensions/uptime-indicator@gniourfgniourf.gmail.com
-filestoinstall=extension.js metadata.json stylesheet.css
-files=$(filestoinstall) Screenshot.png TODO
+destdir=$(HOME)/.local/share/gnome-shell/extensions/demopopupmenu@fpmurphy.com
+filestoinstall=extension.js metadata.json stylesheet.css 
+icondestdir=$(HOME)/.local/share/gnome-shell/extensions/demopopupmenu@fpmurphy.com/icons
+iconstoinstall=./icons/happyface.png ./icons/sadface.png
 
 all:
+	@echo "all"
 	@echo "make options:"
 	@echo "      install"
 	@echo "      uninstall"
 	@echo "      dist-zip"
 	@echo "      clean"
+	@echo "	     debug"
 
 install:
-	@install -Cdv "$(destdir)"
-	@install -Cv -m 644 $(filestoinstall) "$(destdir)"
+	@echo "install"
+	install -Cdv "$(destdir)"
+	install -Cdv "$(icondestdir)"
+	install -Cv -m 644 $(filestoinstall) "$(destdir)"
+	install -Cv -m 644 $(iconstoinstall) "$(icondestdir)"
 
 uninstall:
-	@-rm -rfv "$(destdir)"
+	@echo "uninstall"
+	rm -rfv "$(destdir)"
 
 dist-zip:
-	@zip -jv uptime-indicator $(files) Makefile
+	@echo "dist-zip"
+	zip -jv demopopupmenu $(files) Makefile
 
 clean:
-	@-rm -fv uptime-indicator.zip
+	@echo "clean"
+	rm -fv demopopupmenu.zip
 
 debug:
-	@tail -F ~/.cache/gdm/session.log
+	@echo "debug"
+	tail -F ~/.cache/gdm/session.log
+
+listinstalled:
+	@echo "list"
+	find /home/richbodo/.local/share/gnome-shell/extensions/demopopupmenu@fpmurphy.com/.
