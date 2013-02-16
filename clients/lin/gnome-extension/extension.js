@@ -34,7 +34,7 @@ const DemoButton = new Lang.Class({
             style_class: 'demobutton-icon' });
 
 	this._buttonIconSad = new St.Icon({
-            icon_name: 'sadgreenface',
+            icon_name: 'sadface',
             icon_size: 22,
             reactive: true,
             track_hover: true,

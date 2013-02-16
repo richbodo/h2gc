@@ -1,33 +1,39 @@
 #!/usr/bin/env python
 
-# StatusCheck.py - main system status check daemon for h2gc-linux
-# Status: basically works.  needs to be daemonized, add rotating log file, rotating data file, tests
+# StatusCheck.py - main system status check daemon for h2gc-linux 
+# Status: basically works but super primitive and not useful yet
 #
-# Todo: break out all individual checks into their own scripts as below:
+# TODO:
+# 
+# 1) Daemonize
+# 2) Add rotating log file
+# 3) Add tests
+#
+# 4) break out all individual "checkscripts" into their own scripts as below - make it as easy as possible for end users and
+# IT people to collaborate to generate checkscripts and decriptive help information for one another:
 #
 # Check script must follow rules:
 #
-# 1) All scripts create a subdirectory named "checkname" with an executable called "checkname" in it.
-# 2) All scripts return 0 on success, or a number on fail (1 means possibly a little bad, 100 means must fix immediately).
-# 3) Scripts should fill out a section of the .ini file as follows:
+# A) Scripts will check something important every hour - make them executable, name them uniquely,
+# and put them in the /scripts subdirectory.
 #
-#    [checkname]
-#    description = "what this check does and how it works for end users"
-#    status_happy_explanation = "description of what it means for this check to be o.k. for end users"
-#    status_sad_explanation = "description of what it means for this check to be o.k. for end users"    
-#    url = "http://url the user can go to for help"
-#
-# Check script optional rules:
+# B) All scripts return 0 on success, or a number on fail (1 means possibly a little bad, 100 means must fix immediately).
 # 
-# In the check scripts subdirectory, OPTIONALLY include:
+# In the check scripts subdirectory, OPTIONALLY include (replace checkname with the name or your checkscript):
 #
-# teaching.txt - teach user about the check, how it works, and the issue in general
-# logfile.txt - detailed ascii log of all checks (StatusCheck.py will truncate for you)
-# cron.txt - if this file is here then StatusCheck.py will not run the check, instead it will check the contents of this file for
-#            a single integer between 0 and 100, and report that as a result. 
+# checkname.sad - short (one sentence) explanation to end user of what it means when an error is returned.  it is good but not
+# required that the check script update this to reflect a specific issue your script has identified.
+# checkname.happy - short explanation to end user of what it means when this is o.k.
+# checkname.teach - teach user about the check, how it works, and the issue in general (maybe this should not be optional)
+# checkname.log - detailed ascii log of all checks (StatusCheck.py will truncate for you)
+# checkname.cron - if this file is here then StatusCheck.py will not run the check, instead it will check the contents of this 
+# file for a single integer between 0 and 100, and report that as a result.  (we assume you will run your check under cron)
 #
-
-
+# Note that these could all be sections of a wiki page, pulled down periodically via API or wget
+# (with a link to the latest online version embedded), while the client app itself
+# could be pushed periodically via puppet or chef, or could update itself via the OS update system.  Scripts from other monitoring
+# systems could be run via cron and their output echoed to checkname.cron
+#
 
 import os
 import sys
