@@ -3,38 +3,10 @@
 # StatusCheck.py - main system status check daemon for h2gc-linux 
 # Status: basically works but super primitive and not useful yet
 #
-# TODO:
-# 
-# 1) Daemonize
-# 2) Add rotating log file
-# 3) Add tests
-#
-# 4) break out all individual "checkscripts" into their own scripts as below - make it as easy as possible for end users and
-# IT people to collaborate to generate checkscripts and decriptive help information for one another:
-#
-# Check script must follow rules:
-#
-# A) Scripts will check something important every hour - make them executable, name them uniquely,
-# and put them in the /scripts subdirectory.
-#
-# B) All scripts return 0 on success, or a number on fail (1 means possibly a little bad, 100 means must fix immediately).
-# 
-# In the check scripts subdirectory, OPTIONALLY include (replace checkname with the name or your checkscript):
-#
-# checkname.sad - short (one sentence) explanation to end user of what it means when an error is returned.  it is good but not
-# required that the check script update this to reflect a specific issue your script has identified.
-# checkname.happy - short explanation to end user of what it means when this is o.k.
-# checkname.teach - teach user about the check, how it works, and the issue in general (maybe this should not be optional)
-# checkname.log - detailed ascii log of all checks (StatusCheck.py will truncate for you)
-# checkname.cron - if this file is here then StatusCheck.py will not run the check, instead it will check the contents of this 
-# file for a single integer between 0 and 100, and report that as a result.  (we assume you will run your check under cron)
-#
-# Note that these could all be sections of a wiki page, pulled down periodically via API or wget
-# (with a link to the latest online version embedded), while the client app itself
-# could be pushed periodically via puppet or chef, or could update itself via the OS update system.  Scripts from other monitoring
-# systems could be run via cron and their output echoed to checkname.cron
+# Run as an hourly cron job under linux
 #
 
+import pdb
 import os
 import sys
 import traceback
@@ -43,7 +15,7 @@ import re
 import StringIO
 import json
 import urllib2
-import ConfigParser
+import ConfigParser  
 import storage_checks
 import security_checks
 
@@ -96,10 +68,10 @@ def check_storage_status(storage_list):
 #
 # modifies: security list
 #
-def check_security_status(security_list, config_file_parser):
+def check_security_status(security_list, config_p):
     md5item = security_checks.SecurityItem()
     md5item.currmd5 = security_checks.check_shadow_status()
-    md5item.lastmd5 = config_file_parser.get('Security', 'shadowmd5', 0)    
+    md5item.lastmd5 = config_p.get('Security', 'shadowmd5', 0)    
     security_list.append(md5item)
 
 # Log the analysis of drives to local log file
@@ -118,15 +90,17 @@ def log_storage_data(sd_ob_list, status):
     status.overall += result
 
 # Log analysis of security data to local log file
-# modifies: status object
+# modifies: status object, config file with new md5 if necesary
 #
-def log_security_data(sec_ob_list, status):
+def log_security_data(sec_ob_list, status, config_p):
     
     for item in sec_ob_list:
         print item
         if item.currmd5.strip() != item.lastmd5.strip():
             status.overall += 50
             print "Security status +50 because: " + item.currmd5 + " is NOT the same as: " + item.lastmd5 + "\n"
+            pdb.set_trace()
+            config_p.set("Security","shadowmd5",item.currmd5)
         else:
             print "Security status adds zero because: " + item.currmd5 + " is the same as: " + item.lastmd5 + "\n"
 
@@ -134,41 +108,37 @@ def log_security_data(sec_ob_list, status):
 #
 #
 def init_config_file(parser, config_handle):
-    parser.add_section('Security')
-    shadow_md5sum = security_checks.check_shadow_status()
-    parser.set('Security', 'shadowmd5', shadow_md5sum)
-    parser.write(config_handle)
+    try:
+        parser.add_section('Security')
+        shadow_md5sum = security_checks.check_shadow_status()
+        parser.set('Security', 'shadowmd5', shadow_md5sum)
+        #pdb.set_trace()
+        parser.write(config_handle)
+    except:
+        print "Could not initialize parser."
+        return 1
+
     return parser
     
 
 # Get the config file data into a configparser object
-# REFACTOR - more error handling and better usage of configparser
 # returns: a configparser object handle or 1 on error
 #
-def get_config():
+def get_config(config_handle, full_config):
     parser = ConfigParser.SafeConfigParser()
-    config_dir = os.path.expanduser("~") + "/.h2gc/"
-    config_file = "main_config"
-    full_config = config_dir + config_file
     
-    if not os.path.isdir(config_dir):
-        print "Config directory does not exist.  First run assumed.  Creating.  Initializing file."
-        os.makedirs(config_dir, mode=0700)
-        config_handle = open(full_config, 'w+')
-        init_config_file(parser, config_handle)
-
     try:
         parser.read(full_config)
     except ConfigParser.ParsingError, err:
-        print "Can't read config file, error is: ", err
+        print "Can't read from config file at all."
         return 1
 
     try: 
         md5out = parser.get('Security', 'shadowmd5', 0) 
     except:
-        print "Didn't find the security/shadowmd5 option or something like that."     
-        return 1
-
+        print "Didn't find the security/shadowmd5 option or something like that.  Creating new sections."     
+        return init_config_file(parser, config_handle)
+        
     return parser
 
 ################################
@@ -179,10 +149,25 @@ def main():
     storage_list=[]
     security_list=[]
 
-    config_p=get_config()
+    # Open/Parse config file
+    #
+    config_dir = os.path.expanduser("~") + "/.h2gc/"
+    config_file = "main_config"
+    full_config = config_dir + config_file
+
+    if (os.path.isdir(config_dir) != True):
+        print "Config directory does not exist.  First run assumed.  Creating.  Initializing file."
+        os.makedirs(config_dir, mode=0700)
+    
+    # pdb.set_trace()
+    # Open, read entire init file in, close
+    #    
+    config_handle = open(full_config, 'w+')    
+    config_p = get_config(config_handle, full_config)
+    config_handle.close()
 
     if config_p == 1:
-        print "Config file cannot be opened or initialized.  We need a running mode for this situation.  Exiting."
+        print "Config file cannot be initialized.  We need a running mode for this situation.  Exiting."
         sys.exit(1)
 
     # Check system health - log locally
@@ -191,9 +176,15 @@ def main():
     log_storage_data(storage_list, status) 
 
     check_security_status(security_list, config_p)
-    log_security_data(security_list, status)
+    log_security_data(security_list, status, config_p)
 
-    # Post overall status to server if available
+    # Open, write entire init file out, close
+    # 
+    config_handle = open(full_config, 'w+')
+    config_p.write(config_handle)
+    config_handle.close()
+
+    # Post overall status to server, if available
     #
     post_report("grandma@example.com", status)
 

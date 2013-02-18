@@ -10,6 +10,8 @@ app.configure(function () {
  
 app.get('/logs', log.findAll);
 app.get('/logs/:id', log.findById);
+app.get('/humanpages', log.getHtmlPages);
+app.get('/humanpages/:id', log.findPage);
 app.post('/logs', log.addLog);
 app.put('/logs/:id', log.updateLog);
 app.delete('/logs/:id', log.deleteLog);
