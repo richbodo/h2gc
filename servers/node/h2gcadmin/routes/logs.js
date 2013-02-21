@@ -6,18 +6,20 @@ BSON = mongo.BSONPure;
  
 var server = new Server('localhost', 27017, {auto_reconnect: true});
 db = new Db('logdb', server);
- 
-db.open(function(err, db) {
-    if(!err) {
-	console.log("Connected to 'logdb' database");
-	db.collection('logs', {safe:true}, function(err, collection) {
-	    if (err) {
-		console.log("The 'logs' collection doesn't exist. Creating it with sample data...");
-		populateDB();
-	    }
-	});
-    }
-});
+
+//
+//  Homepage renderer
+//
+
+exports.homePage = function(req, res) {
+    res.render('index', 
+	       { title : 'Home' }
+    );
+};
+
+//
+// REST API functions
+//
  
 exports.findById = function(req, res) {
     var id = req.params.id;
@@ -102,11 +104,24 @@ exports.deleteLog = function(req, res) {
 	});
     });
 }
+
+
+//
+// db functions
+//
  
+db.open(function(err, db) {
+    if(!err) {
+	console.log("Connected to 'logdb' database");
+	db.collection('logs', {safe:true}, function(err, collection) {
+	    if (err) {
+		console.log("The 'logs' collection doesn't exist. Creating it with sample data...");
+		populateDB();
+	    }
+	});
+    }
+});
  
-/*--------------------------------------------------------------------------------------------------------------------*/
-// Populate database with sample data -- Only used once: the first time the application is started.
-// You'd typically not find this code in a real-life app, since the database would already exist.
 var populateDB = function() {
     var logs = [
 	{

@@ -148,9 +148,6 @@ def main():
     status=Status()
     storage_list=[]
     security_list=[]
-
-    # Open/Parse config file
-    #
     config_dir = os.path.expanduser("~") + "/.h2gc/"
     config_file = "main_config"
     full_config = config_dir + config_file

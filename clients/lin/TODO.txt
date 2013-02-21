@@ -1,7 +1,9 @@
 # TODO:
 # 
-# 1) Daemonize
+# 1) Daemonize/put config in etc, var, wherever it goes.  For now using cron and ~/.h2gc/
+#
 # 2) Add rotating log file
+#
 # 3) Add tests
 #
 # 4) break out all individual "checkscripts" into their own scripts as below - make it as easy as possible for end users and
@@ -12,28 +14,30 @@
 # A) Checkscripts will check something important every hour - make them executable, name them uniquely,
 # and put them in the /scripts subdirectory.
 #
-# B) All checkscripts must return 0 on success, or a fuzzy severity number on fail 
+# B) All checkscripts must return 0 on success, or a fuzzy severity integer on fail 
 # (as a guide, 1 means possibly a little bad, 50 means hard drive is about to fail, 100 is a clear security compromise).
 # 
-# In the check scripts subdirectory, OPTIONALLY include (replace checkname with the name or your checkscript):
+# In the check scripts subdirectory, include (replace checkname with the name or your checkscript):
+#
+# checkname.teach - teach user about the check, how it works, and the issue in general - as non technical as possible.
 #
 # checkname.sad - short (one sentence) explanation to end user of what it means when an error is returned.  it is good but not
 # required that the check script update this to reflect a specific issue your script has identified.  this is your opportunity
 # to be specific and not fuzzy.
 #
-# checkname.happy - like checkname.sad, short explanation to end user of what it means when this is o.k.
-#
-# checkname.teach - teach user about the check, how it works, and the issue in general (maybe this should not be optional)
-#
-# checkname.log - detailed ascii log of all checks (StatusCheck.py will truncate for you)
+# checkname.log - Ongoing log file for your checkscript (StatusCheck.py will truncate for you) - can be shown to user with 
+# the .sad file.
 #
 # checkname.cron - if this file is here then StatusCheck.py will not run the check, instead it will check the contents of this 
 # file for a single integer between 0 and 100, and report that as a result. (We assume you run the checkscript under cron,
 # or that it is run as part of another system, and has been adapted to try to echo some data to h2gc).  Note to self to think
-# about the security implications before I go to far with this.
+# about the security implications before I go too far with this.
 #
-# Note the goals here are simplicity, ease of use, extensibility, update-system-angnostic-ness, and freshness:
+# Note the goals here are simplicity, ease of use, extensibility, update-system-angnostic-ness, and freshness.
 #
-# Note that these could all be sections of a wiki page, pulled down periodically via API or wget
+# Note that these files could all be sections of a wiki page, pulled down periodically via API or wget
 # (with a link to the latest online version embedded), while the client app itself
 # could be pushed periodically via puppet or chef, or could update itself via the OS update system.
+#
+# 
+#
