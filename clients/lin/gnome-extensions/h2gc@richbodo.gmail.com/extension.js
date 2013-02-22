@@ -107,38 +107,38 @@ CpuTemperature.prototype = {
     //
     _update_system_status: function() {
 
-        systemStatus = this._findSystemStatusFromFile();
-
+	// Set the title of the top menu
+        var systemStatus = this._findSystemStatusFromFile();
 	this.title = systemStatus;
         this.statusLabel.set_text(this.title);
+
+	// mysterious housekeeping
         this.menu.box.get_children().forEach(function(c) {
             c.destroy()
         });
 
-	// Build entire menu from scratch
+	// Build the menu section item by item
 	//
         let section = new PopupMenu.PopupMenuSection("Temperature");
-        // if (items.length>0){
-        //     let item;
-        //     for each (let itemText in items){
-        //         item = new PopupMenu.PopupMenuItem(itemText);
-        //         section.addMenuItem(item);
-        //     }
-        // }else{
-        //     let command=this.command;
-        //     let item = new PopupMenu.PopupMenuItem(this.content);
-        //     item.connect('activate',function() {
-        //         Util.spawn(command);
-        //     });
-        //     section.addMenuItem(item);
-        // }
+        var _appSys = Shell.AppSystem.get_default();
+        var _gsmPrefs = _appSys.lookup_app('gnome-shell-extension-prefs.desktop');
+        let item;
 
-        let _appSys = Shell.AppSystem.get_default();
-        let _gsmPrefs = _appSys.lookup_app('gnome-shell-extension-prefs.desktop');
+        item = new PopupMenu.PopupMenuItem("Learn");
+        section.addMenuItem(item);
+	item.connect('activate', Lang.bind(this, this._doLearn));
+
+        item = new PopupMenu.PopupMenuItem("Collaborate");
+        section.addMenuItem(item);
+	item.connect('activate', Lang.bind(this, this._doCollaborate));
+
+        item = new PopupMenu.PopupMenuItem(_("Contact A Guru"));
+        section.addMenuItem(item);
+	item.connect('activate', Lang.bind(this, this._doContactGuru));	
 
 	// Add the preferences menu item
 	//
-        item = new PopupMenu.PopupMenuItem(_("Changed prefs..."));
+        item = new PopupMenu.PopupMenuItem(_("Change Stuff"));
         item.connect('activate', function () {
             if (_gsmPrefs.get_state() == _gsmPrefs.SHELL_APP_STATE_RUNNING){
                 _gsmPrefs.activate();
@@ -148,9 +148,33 @@ CpuTemperature.prototype = {
             }
         });
         section.addMenuItem(item);
-        this.menu.addMenuItem(section);
+
+	// Now add the section
+        this.menu.addMenuItem(section);	
+
     },
 
+    _doLearn: function() {	
+	global.log("In Learn About It");
+	// open local web page
+	// sensible-browser in debian-derived
+	// xdg-open, x-www-browser in some others
+	// since we are using gnome - gnome-open URL works as well
+        return true;    
+    },
+
+    _doCollaborate: function() {	
+	global.log("In Collaborate.");
+	// open private chatroom
+	//
+        return true;    
+    },
+
+    _doContactGuru: function() {	
+	global.log("In Contact a Guru.");
+	// open default email application
+        return true;    
+    },
 
     // Finds current temperatures
     // Updates status label field "title"
