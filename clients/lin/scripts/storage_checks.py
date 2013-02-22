@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # storage_checks.py - module to contain storage checks for linux client
 # Status: Some of the actual storage checking stuff I want is here, needs tests and more checks 
 #
@@ -29,6 +31,12 @@ class StorageDevice:
                 "SMART Capable: " + str(self.smartcapable) + "\n"
                 "SMART Report: " + str(self.smartreport) + "\n"
                 "SMART Health Summary Status: " + str(self.smartstatus) + "\n")	
+
+class Status:
+    def __init__(self):
+        self.overall = 0
+    def __str__(self):
+        return (str(self.overall))
 
 # Get mounted storage device info
 #
@@ -119,3 +127,49 @@ def add_device_smart_health(mounted_fixed_list, completed_drive_status_list):
         device.smartstatus = result
         return 0
 
+
+# Check the status of storage devices
+#
+# modifies: storage list
+#
+def check_storage_status(storage_list):
+    mounted_fixed_list=[]
+    completed_drive_status_list=[]
+
+    get_mounted_storage_device_info(storage_list)
+    get_mounted_fixed_storage_device_data(storage_list, mounted_fixed_list)
+    add_device_smart_health(mounted_fixed_list, completed_drive_status_list)
+
+# Log the analysis of drives to local log file
+# modifies: status object
+#
+def log_storage_data(sd_ob_list, status):
+    result = 0
+
+    for i in sd_ob_list:
+        print i
+        if i.percentused >= 90:
+            result += 5
+        if i.smartstatus != "PASSED":
+            result += 100
+    
+    status.overall += result
+
+    
+
+
+def main():
+    status=Status()
+    storage_list=[]
+    check_storage_status(storage_list)
+    log_storage_data(storage_list, status) 
+
+    # Write overall status to file
+    # Nothing should be affecting status after this point
+    #
+    overall_handle = open(full_overall, 'w+')    
+    overall_handle.write(str(status.overall))
+    overall_handle.close()
+
+if __name__ == '__main__':
+    main()

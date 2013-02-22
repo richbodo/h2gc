@@ -99,7 +99,7 @@ def log_security_data(sec_ob_list, status, config_p):
         if item.currmd5.strip() != item.lastmd5.strip():
             status.overall += 50
             print "Security status +50 because: " + item.currmd5 + " is NOT the same as: " + item.lastmd5 + "\n"
-            pdb.set_trace()
+            #pdb.set_trace()
             config_p.set("Security","shadowmd5",item.currmd5)
         else:
             print "Security status adds zero because: " + item.currmd5 + " is the same as: " + item.lastmd5 + "\n"
@@ -125,6 +125,8 @@ def init_config_file(parser, config_handle):
 # returns: a configparser object handle or 1 on error
 #
 def get_config(config_handle, full_config):
+    #pdb.set_trace()
+
     parser = ConfigParser.SafeConfigParser()
     
     try:
@@ -134,7 +136,7 @@ def get_config(config_handle, full_config):
         return 1
 
     try: 
-        md5out = parser.get('Security', 'shadowmd5', 0) 
+        md5out = parser.get('Security', 'shadowmd5', 0)
     except:
         print "Didn't find the security/shadowmd5 option or something like that.  Creating new sections."     
         return init_config_file(parser, config_handle)
@@ -150,17 +152,21 @@ def main():
     security_list=[]
     config_dir = os.path.expanduser("~") + "/.h2gc/"
     config_file = "main_config"
+    overall_file = "status"
     full_config = config_dir + config_file
+    full_overall = config_dir + overall_file
 
     if (os.path.isdir(config_dir) != True):
         print "Config directory does not exist.  First run assumed.  Creating.  Initializing file."
         os.makedirs(config_dir, mode=0700)
     
     # pdb.set_trace()
-    # Open, read entire init file in, close
+    # Open, read entire config file in, close
     #    
-    config_handle = open(full_config, 'w+')    
+    config_handle = open(full_config, 'r') # this blows away file
+    print "opened full_config"
     config_p = get_config(config_handle, full_config)
+    print "completed get_config"
     config_handle.close()
 
     if config_p == 1:
@@ -169,23 +175,33 @@ def main():
 
     # Check system health - log locally
     #
-    check_storage_status(storage_list)
-    log_storage_data(storage_list, status) 
+    #check_storage_status(storage_list)
+    #log_storage_data(storage_list, status) 
 
+    
+    #
     check_security_status(security_list, config_p)
     log_security_data(security_list, status, config_p)
 
-    # Open, write entire init file out, close
+    # Open, write entire config file out, close
     # 
     config_handle = open(full_config, 'w+')
     config_p.write(config_handle)
     config_handle.close()
-
+ 
     # Post overall status to server, if available
     #
     post_report("grandma@example.com", status)
 
     print "Overall status: " + str(status.overall)
+
+    # Write overall status to file
+    # Nothing should be affecting status after this point
+    #
+    overall_handle = open(full_overall, 'w+')    
+    overall_handle.write(str(status.overall))
+    overall_handle.close()
+
     print "Done.\n"
 
 if __name__ == '__main__':

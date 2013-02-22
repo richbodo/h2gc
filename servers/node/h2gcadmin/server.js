@@ -36,6 +36,5 @@ app.post('/logs', log.addLog);
 app.put('/logs/:id', log.updateLog);
 app.delete('/logs/:id', log.deleteLog);
 
-
 app.listen(3000);
 console.log('Listening on port 3000...');	
