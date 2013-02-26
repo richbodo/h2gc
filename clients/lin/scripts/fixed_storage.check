@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
-# storage_checks.py - module to contain storage checks for linux client
+# storage_checks.py - module to contain storage checks for **Linux** client
 # Status: Some of the actual storage checking stuff I want is here, needs tests and more checks 
+#
+# Preconditions: should be in scripts directory of h2gc client system
+# Postconditions: 
+#     Returns 0 on no error, 1-100 on problem found, by severity.  
+#     Error notes > .sad, Log >> .log
 #
 
 import os
@@ -10,6 +15,15 @@ import re
 import StringIO
 import json
 import urllib2
+
+class Status:
+    def __init__(self):
+        self.overall = 0
+        self.sad = "No problems detected with your fixed storage devices.  Your hard drives, SSDs, etc. are doing fine."
+    def __str__(self):
+        return ("Overall Fixed Storage Status: " + str(self.overall) + "\n"
+                "Current Evaluation of Issues: " + str(self.sad) + "\n")
+
 
 class StorageDevice:
     def __init__(self):
@@ -32,12 +46,6 @@ class StorageDevice:
                 "SMART Report: " + str(self.smartreport) + "\n"
                 "SMART Health Summary Status: " + str(self.smartstatus) + "\n")	
 
-class Status:
-    def __init__(self):
-        self.overall = 0
-    def __str__(self):
-        return (str(self.overall))
-
 # Get mounted storage device info
 #
 # Precondition: gnu mount v2.20.1 output format
@@ -48,7 +56,7 @@ def get_mounted_storage_device_info(mounted_list):
     # REFACTOR - this string manip works, but can't possibly be the right way to do it
     out = '\n'.join(subprocess.check_output(["df", "-h"]).splitlines())
     mounts = StringIO.StringIO(out)
-
+ 
     line_num = 0
     for line in mounts.readlines():
         line_num += 1
@@ -67,7 +75,6 @@ def get_mounted_storage_device_info(mounted_list):
             deviceobject.mountpoint = mounted_on
             deviceobject.percentused = use_percent
             mounted_list.append(deviceobject)
-            # print "Found " + deviceobject.devname + " mounted on " + deviceobject.mountpoint + " with Use% " + deviceobject.percentused
     return 0
 
 # get mounted, "fixed" storage device data
@@ -155,21 +162,23 @@ def log_storage_data(sd_ob_list, status):
     
     status.overall += result
 
-    
-
-
 def main():
     status=Status()
-    storage_list=[]
+    storage_list=[] 
+    config_path = os.path.expanduser("~") + "/.h2gc/scripts/fixed_storage"
+    sad_fname = config_path + ".sad"
+ 
     check_storage_status(storage_list)
     log_storage_data(storage_list, status) 
-
-    # Write overall status to file
-    # Nothing should be affecting status after this point
+ 
+    # Nothing should change the status after this point
+    # Write overall status to file, blowing away other contents
     #
-    overall_handle = open(full_overall, 'w+')    
-    overall_handle.write(str(status.overall))
-    overall_handle.close()
+    sad_handle = open(sad_fname, 'w+')    
+    sad_handle.write(str(status.sad))
+    sad_handle.close()
+
+    return status.overall
 
 if __name__ == '__main__':
     main()

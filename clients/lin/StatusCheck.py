@@ -8,6 +8,7 @@
 
 import pdb
 import os
+import stat
 import sys
 import traceback
 import subprocess
@@ -16,7 +17,6 @@ import StringIO
 import json
 import urllib2
 import ConfigParser  
-import storage_checks
 import security_checks
 
 class Status:
@@ -24,7 +24,6 @@ class Status:
         self.overall = 0
     def __str__(self):
         return (str(self.overall))
-
 
 # POST log entry to server
 # modifies: status object
@@ -143,8 +142,55 @@ def get_config(config_handle, full_config):
         
     return parser
 
-################################
+def scheck_log(logstring):
+    print logstring
+    return 0
+
+# Run a single check script
 #
+def run_check(full_executable_path):
+    print "Running: " + str(full_executable_path)
+
+    out = '\n'.join(subprocess.check_output([full_executable_path]).splitlines())
+    strings_out = StringIO.StringIO(out)
+ 
+    for line in strings_out.readlines():
+        print line
+
+
+# Run All Checkscripts
+#
+def run_all_checks(scripts_dir, status):
+
+    executable = stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH
+ 
+    for dirpath, dirnames, filenames in os.walk(scripts_dir):
+        for currentfile in filenames:
+            fileBaseName, fileExtension = os.path.splitext(currentfile)
+            print "Found file base name: " + fileBaseName + " with extension: " + fileExtension
+            if (fileExtension == ".check"):
+                path_plus_filename = os.path.join(dirpath,currentfile) 
+                file_stat = os.stat(path_plus_filename).st_mode
+                if (file_stat & executable):
+                    print "File: " + currentfile + " is executable - mode: " + oct(file_stat)
+                    output = run_check(path_plus_filename)
+
+         #         output_int = output.toInt()
+         #         if (isInteger(output_int)):
+         #             scheck_log("Check: " + file " returned an integer: " + output)
+         #             output_value += output_int
+         #         else:
+         #             scheck_log("Check: " + file " returned non integer output: " + output)
+         #             output_value += 1
+         #     else:
+         #         scheck_log("Check: " + file " is not executable on disk")                 
+         #         return 1
+         # else:
+         #     scheck_log("Skipping non check file " + file)
+
+             
+
+#################################
 #
 def main():
     status=Status()
@@ -153,6 +199,7 @@ def main():
     config_dir = os.path.expanduser("~") + "/.h2gc/"
     config_file = "main_config"
     overall_file = "status"
+    scripts_dir = config_dir + "scripts/"
     full_config = config_dir + config_file
     full_overall = config_dir + overall_file
 
@@ -160,7 +207,6 @@ def main():
         print "Config directory does not exist.  First run assumed.  Creating.  Initializing file."
         os.makedirs(config_dir, mode=0700)
     
-    # pdb.set_trace()
     # Open, read entire config file in, close
     #    
     config_handle = open(full_config, 'r') # this blows away file
@@ -175,13 +221,16 @@ def main():
 
     # Check system health - log locally
     #
+
     #check_storage_status(storage_list)
     #log_storage_data(storage_list, status) 
-
     
-    #
-    check_security_status(security_list, config_p)
-    log_security_data(security_list, status, config_p)
+    run_all_checks(scripts_dir, status)
+    
+    # still need to make this it's own script
+    # 
+    # check_security_status(security_list, config_p)
+    # log_security_data(security_list, status, config_p)
 
     # Open, write entire config file out, close
     # 
@@ -190,13 +239,15 @@ def main():
     config_handle.close()
  
     # Post overall status to server, if available
+    # TODO: Use system primary interface mac as key to a unique, meaningless id instead of this hardcoded test string
     #
     post_report("grandma@example.com", status)
 
     print "Overall status: " + str(status.overall)
 
     # Write overall status to file
-    # Nothing should be affecting status after this point
+    #
+    # --- Nothing should be affecting overall status after this point ---
     #
     overall_handle = open(full_overall, 'w+')    
     overall_handle.write(str(status.overall))

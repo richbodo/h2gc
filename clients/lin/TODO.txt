@@ -1,3 +1,6 @@
+#
+# This is the old TODO file.  It still has the only explanation of how to write a checkscript in it.
+#
 # TODO:
 # 
 # 1) Daemonize/put config in etc, var, wherever it goes.  For now using cron and ~/.h2gc/
@@ -7,34 +10,44 @@
 # 3) Add tests
 #
 # 4) break out all individual "checkscripts" into their own scripts as below - make it as easy as possible for end users and
-# system admins to collaborate to generate checkscripts and decriptive help information for one another:
+# system admins to collaborate on writing these:
 #
-# Each checkscript must follow rules:
+# Checkscript Rules:
 #
-# A) Checkscripts will check something important every hour - make them executable, name them uniquely,
-# and put them in the /scripts subdirectory.
+# A) Checkscripts will be run to check something important every hour - make them executable, name them uniquely,
+# and put them in the /scripts subdirectory.  Give your script the extension .check
 #
-# B) All checkscripts must return 0 on success, or a fuzzy severity integer on fail 
-# (as a guide, 1 means possibly a little bad, 50 means hard drive is about to fail, 100 is a clear security compromise).
+# B) All checkscripts must return 0 on success (no problems detected, mission accomplished), or an integer on fail, as below: 
 # 
-# In the check scripts subdirectory, include (replace checkname with the name or your checkscript):
+# As a guide, 1 means possibly a little bad, 50 means hard drive is about to fail, and 100 is a clear security compromise.
+# Failure of the checkscript to do it's duty can be any non-zero value, but the .sad file should be updated to reflect
+# the fact that the checkscript is producing an internal error and failing to complete, if possible.
+#
+# You should also (optionally?) put the following four files in that directory:
 #
 # checkname.teach - teach user about the check, how it works, and the issue in general - as non technical as possible.
+#
 # checkname.sad - short (one sentence) explanation to end user of what it means when an error is returned.  it is good but not
 # required that the check script update this to reflect a specific issue your script has identified.  this is your opportunity
-# to be specific and not fuzzy.
-# checkname.log - Ongoing log file for your checkscript (StatusCheck.py will truncate for you) - can be shown to user with 
+# to be specific and not fuzzy.  this is also the place for your script to tell us what problems it runs into when it can't perform
+# it's job.
+#
+# checkname.log (optional) - Ongoing log file for your checkscript (StatusCheck.py will truncate for you) - can be shown to user with 
 # the .sad file.
-# checkname.cron - if this file is here then StatusCheck.py will not run the check, instead it will check the contents of this 
+#
+# checkname.cron (optional) - if this file exists, then StatusCheck.py will not try to run this check.
+# instead, statuscheck will check the contents of this 
 # file for a single integer between 0 and 100, and report that as a result. (We assume you run the checkscript under cron,
-# or that it is run as part of another system, and has been adapted to try to echo some data to h2gc).  Note to self to think
-# about the security implications before I go too far with this.
+# or that it is run as part of another system, and has been adapted to try to echo some data to h2gc).  Yet another note to self to think
+# about the security implications before I encourage anyone to use this system.
 #
 # Note the goals here are simplicity, ease of use, extensibility, update-system-angnostic-ness, and freshness.
 #
-# Note that these files could all be sections of a wiki page, pulled down periodically via API or wget
+# Open questions (updates/sharing/pushing of checkscripts): 
+#
+# Most, if not all, of the checkscript files could be sections of a wiki page, pulled down periodically via API or wget
 # (with a link to the latest online version embedded), while the client app itself
 # could be pushed periodically via puppet or chef, or could update itself via the OS update system.
 #
+# Have to take a look at what others are doing.  Tons of security issues.
 # 
-#
