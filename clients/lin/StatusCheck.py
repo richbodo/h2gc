@@ -17,7 +17,6 @@ import StringIO
 import json
 import urllib2
 import ConfigParser  
-import security_checks
 
 class Status:
     def __init__(self):
@@ -51,27 +50,6 @@ def post_report(computer, status):
         print "Server says: " + response
         f.close()
 
-# Check the status of storage devices
-#
-# modifies: storage list
-#
-def check_storage_status(storage_list):
-    mounted_fixed_list=[]
-    completed_drive_status_list=[]
-
-    storage_checks.get_mounted_storage_device_info(storage_list)
-    storage_checks.get_mounted_fixed_storage_device_data(storage_list, mounted_fixed_list)
-    storage_checks.add_device_smart_health(mounted_fixed_list, completed_drive_status_list)
-
-# Check the status of local system security
-#
-# modifies: security list
-#
-def check_security_status(security_list, config_p):
-    md5item = security_checks.SecurityItem()
-    md5item.currmd5 = security_checks.check_shadow_status()
-    md5item.lastmd5 = config_p.get('Security', 'shadowmd5', 0)    
-    security_list.append(md5item)
 
 # Log the analysis of drives to local log file
 # modifies: status object
@@ -87,21 +65,6 @@ def log_storage_data(sd_ob_list, status):
             result += 100
     
     status.overall += result
-
-# Log analysis of security data to local log file
-# modifies: status object, config file with new md5 if necesary
-#
-def log_security_data(sec_ob_list, status, config_p):
-    
-    for item in sec_ob_list:
-        print item
-        if item.currmd5.strip() != item.lastmd5.strip():
-            status.overall += 50
-            print "Security status +50 because: " + item.currmd5 + " is NOT the same as: " + item.lastmd5 + "\n"
-            #pdb.set_trace()
-            config_p.set("Security","shadowmd5",item.currmd5)
-        else:
-            print "Security status adds zero because: " + item.currmd5 + " is the same as: " + item.lastmd5 + "\n"
 
 # Create the minimum config file that will work if none exists
 #
@@ -119,7 +82,6 @@ def init_config_file(parser, config_handle):
 
     return parser
     
-
 # Get the config file data into a configparser object
 # returns: a configparser object handle or 1 on error
 #
@@ -186,8 +148,6 @@ def run_all_checks(scripts_dir, status):
 #
 def main():
     status=Status()
-    storage_list=[]
-    security_list=[]
     config_dir = os.path.expanduser("~") + "/.h2gc/"
     config_file = "main_config"
     overall_file = "status"
@@ -201,7 +161,7 @@ def main():
     
     # Open, read entire config file in, close
     #    
-    config_handle = open(full_config, 'r') # this blows away file
+    config_handle = open(full_config, 'r') 
     print "opened full_config"
     config_p = get_config(config_handle, full_config)
     print "completed get_config"
@@ -213,14 +173,8 @@ def main():
 
     # Check system health - log locally
     #
-
     run_all_checks(scripts_dir, status)
     
-    # still need to make this it's own script
-    # 
-    # check_security_status(security_list, config_p)
-    # log_security_data(security_list, status, config_p)
-
     # Open, write entire config file out, close
     # 
     config_handle = open(full_config, 'w+')
