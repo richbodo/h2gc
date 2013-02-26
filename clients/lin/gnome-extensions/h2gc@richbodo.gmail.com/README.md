@@ -1,7 +1,7 @@
 
 
 
-*H2GC* is a client monitoring extension.
+**H2GC** is a client monitoring extension.
 
 This version is based on gnome-shell-extension-cpu-temperature, 
 
@@ -9,7 +9,7 @@ which  is an extension for displaying
 system temperature data in GNOME Shell
 
 Installation
-=============
+------------
 
 make install
 Alt-F2, r
@@ -21,7 +21,7 @@ this is part of a larger application, but for now we're just palying around,
 take a look at the README for the larger project.
 
 Features
-=========
+---------
 
 Display status issues on panel
 
@@ -36,12 +36,13 @@ Menu:
 * TBD Re-run-checks now (+last check run time) - if this fails, then status is set to H2GC is down
 
 License
-========
+--------
 
 Like all gnome extensions, GPLV2+
 
-Authors : [authors]
-
+Authors 
+---------
 [H2GC]: just rich, for now.
 [CPU Temp extension]: https://github.com/xtranophilist/gnome-shell-extension-cpu-temperature/graphs/contributors
-5A
+
+

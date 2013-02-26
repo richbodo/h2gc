@@ -124,7 +124,6 @@ def init_config_file(parser, config_handle):
 # returns: a configparser object handle or 1 on error
 #
 def get_config(config_handle, full_config):
-    #pdb.set_trace()
 
     parser = ConfigParser.SafeConfigParser()
     
@@ -147,48 +146,41 @@ def scheck_log(logstring):
     return 0
 
 # Run a single check script
+# TODO exception handling
 #
 def run_check(full_executable_path):
     print "Running: " + str(full_executable_path)
-
-    out = '\n'.join(subprocess.check_output([full_executable_path]).splitlines())
-    strings_out = StringIO.StringIO(out)
- 
-    for line in strings_out.readlines():
-        print line
-
+    my_environment = os.environ.copy()
+    p1 = subprocess.Popen([full_executable_path], env=my_environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out,err = p1.communicate()
+    returncode = p1.returncode
+    print "stdout: ", out
+    print "stderr: ", err
+    print "returncode: ", returncode
+    return returncode
 
 # Run All Checkscripts
 #
 def run_all_checks(scripts_dir, status):
 
     executable = stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH
- 
+    output_value = 0
+
     for dirpath, dirnames, filenames in os.walk(scripts_dir):
         for currentfile in filenames:
             fileBaseName, fileExtension = os.path.splitext(currentfile)
-            print "Found file base name: " + fileBaseName + " with extension: " + fileExtension
-            if (fileExtension == ".check"):
-                path_plus_filename = os.path.join(dirpath,currentfile) 
+            path_plus_filename = os.path.join(dirpath,currentfile)
+            if (fileExtension == ".check"): 
                 file_stat = os.stat(path_plus_filename).st_mode
                 if (file_stat & executable):
                     print "File: " + currentfile + " is executable - mode: " + oct(file_stat)
-                    output = run_check(path_plus_filename)
-
-         #         output_int = output.toInt()
-         #         if (isInteger(output_int)):
-         #             scheck_log("Check: " + file " returned an integer: " + output)
-         #             output_value += output_int
-         #         else:
-         #             scheck_log("Check: " + file " returned non integer output: " + output)
-         #             output_value += 1
-         #     else:
-         #         scheck_log("Check: " + file " is not executable on disk")                 
-         #         return 1
-         # else:
-         #     scheck_log("Skipping non check file " + file)
-
-             
+                    return_code = run_check(path_plus_filename)
+                    output_value += return_code
+                else:
+                    print "Check script: " + path_plus_filename + " is not executable, adding 1 and calling it a day."                 
+                    output_value += 1
+            else:
+                print "Skipping non check file " + path_plus_filename
 
 #################################
 #
@@ -222,9 +214,6 @@ def main():
     # Check system health - log locally
     #
 
-    #check_storage_status(storage_list)
-    #log_storage_data(storage_list, status) 
-    
     run_all_checks(scripts_dir, status)
     
     # still need to make this it's own script
