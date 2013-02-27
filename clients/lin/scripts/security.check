@@ -66,11 +66,81 @@ def log_security_data(security_list, status, config_p):
         else:
             print "Security status adds zero because: " + item.currmd5 + " is the same as: " + item.lastmd5 + "\n"
 
+# Create the minimum config file that will work if none exists
+#
+#
+def init_config_file(parser, config_handle):
+    try:
+        parser.add_section('Security')
+        shadow_md5sum = security_checks.check_shadow_status()
+        parser.set('Security', 'shadowmd5', shadow_md5sum)
+        #pdb.set_trace()
+        parser.write(config_handle)
+    except:
+        print "Could not initialize parser."
+        return 1
+
+    return parser
+    
+# Get the config file data into a configparser object
+# returns: a configparser object handle or 1 on error
+#
+def get_config(config_handle, full_config):
+
+    parser = ConfigParser.SafeConfigParser()
+    
+    try:
+        parser.read(full_config)
+    except ConfigParser.ParsingError, err:
+        print "Can't read from config file at all."
+        return 1
+
+    try: 
+        md5out = parser.get('Security', 'shadowmd5', 0)
+    except:
+        print "Didn't find the security/shadowmd5 option or something like that.  Creating new sections."     
+        return init_config_file(parser, config_handle)
+        
+    return parser
+
 #################################
 #
 def main():
-    check_security_status(security_list, config_p)
+    security_list=[]
+    status=Status()
+    config_dir = os.path.expanduser("~") + "/.h2gc/scripts/"
+    config_file = "security.conf"
+    full_config = config_dir + config_file
+ 
+    # Check to see if the file exists, not hte dir
+    if (os.path.isdir(config_dir) != True):
+        print "Config directory does not exist.  We're screwed."
+        #os.makedirs(config_dir, mode=0700)
+        # write something out to .sad
+        exit(1)
+
+    # Open, read entire config file in, close
+    #    
+    config_handle = open(full_config, 'r') 
+    print "opened full_config"
+    config_p = get_config(config_handle, full_config)
+    print "completed get_config"
+    config_handle.close()
+
+    if config_p == 1:
+        print "Config file cannot be initialized.  We need a running mode for this situation.  Exiting."
+        sys.exit(1)
+
+    returncode = check_security_status(security_list, config_p)
     log_security_data(security_list, config_p)
+
+    # Open, write entire config file out, close
+    # 
+    config_handle = open(full_config, 'w+')
+    config_p.write(config_handle)
+    config_handle.close()
+ 
+    exit(returncode)
 
 if __name__ == '__main__':
     main()
