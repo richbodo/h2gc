@@ -103,7 +103,9 @@ def get_config(config_handle, full_config):
         
     return parser
 
-def scheck_log(logstring):
+# Logging method for Status Check runs
+#
+def sclog(logstring):
     print logstring
     return 0
 

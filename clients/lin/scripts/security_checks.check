@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # security_checks.py - module to contain security checks for linux clients
 # Status: this is mostly a placeholder for security checks, so I can continue development
 #
@@ -16,6 +18,13 @@ class SecurityItem:
         return ("Security Item Object\n"
                 "Last shadow file md5sum: " + str(self.lastmd5) + "\n"
                 "Current shadow file md5sum: " + str(self.currmd5) + "\n")
+class Status:
+    def __init__(self):
+        self.overall = 0
+        self.sad = "No problems detected with your fixed storage devices.  Your hard drives, SSDs, etc. are doing fine."
+    def __str__(self):
+        return ("Overall Fixed Storage Status: " + str(self.overall) + "\n"
+                "Current Evaluation of Issues: " + str(self.sad) + "\n")
 
 # Check to see if any user accounts have changed
 # Depends on GNU coreutils 8.13

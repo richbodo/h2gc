@@ -1,15 +1,14 @@
 extend layout
 block content
+  h1 Recent Checkins
   p
-    | First block
-  p
-    | Second block
-    | more text
+    - each logline in loglines
+      div.logline
+        div.computer= logline.computer
+        div.status= logline.status
+
 block sidebar
   .widget
-    h1 Widget
-    p
-      | first sidebar block
-    p
-      | second sidebar block
-      | more text
+    h1= sidebartitle
+    p    
+      | blah blah blah

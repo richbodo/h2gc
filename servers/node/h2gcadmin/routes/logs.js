@@ -12,9 +12,12 @@ db = new Db('logdb', server);
 //
 
 exports.homePage = function(req, res) {
-    res.render('index', 
-	       { title : 'Home' }
-    );
+    db.collection('logs', function(err, collection) {
+	collection.find().toArray(function(err, items) {
+	    res.render('index', { title:'H2GC', sidebartitle:'N Problem Machines', loglines:items, probs:'example' });	    
+	});
+    });
+    
 };
 
 //
