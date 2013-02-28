@@ -1,0 +1,22 @@
+caption always "%n(%t) : %C"
+defscrollback 2048
+startup_message off
+hardstatus on
+hardstatus alwayslastline
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %d/%m %{W}%c %{g}]'
+
+screen -t "server run"
+stuff "node ../servers/node/h2gcnotify/server.js"
+screen -t "server edit"
+stuff "emacs -nw ../servers/node/h2gcnotify/*.js"
+screen -t "client daemon edit"
+stuff "emacs -nw ../clients/lin/*.py"
+screen -t "client daemon run"
+stuff "../clients/lin/StatusCheck.py"
+screen -t "logs"
+stuff "tail -F ~/.h2gc/client.log"
+screen -t "client gui edit"
+stuff "emacs -nw ../clients/lin/gnome-extensions/h2gc@richbodo.gmail.com/*.js"
+screen -t "client gui dir"
+stuff "cd ../clients/lin/gnome-extensions/h2gc@richbodo.gmail.com/"
+

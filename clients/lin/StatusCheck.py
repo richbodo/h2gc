@@ -3,7 +3,9 @@
 # StatusCheck.py - main system status check daemon for h2gc-linux 
 # Status: basically works but super primitive and not useful yet
 #
-# Run as an hourly cron job under linux
+# A lot of checks need to run as superuser.
+# Consider adding passwordless sudo user for this script.
+# For now running as an hourly cron job under linux.
 #
 
 import pdb
