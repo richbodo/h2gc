@@ -11,7 +11,7 @@ A server component is also available.  The server is simple and lightweight, and
 
 The goal is to make it extremely easy to enhance the client app to check more system issues.  In most cases it is as easy as writing a shell script and dropping it in a directory.  On some systems, we will have to build tools to make it easy for users to write system checks.  Each supported client OS will have a different method of doing this.
 
-Related stuff: The other things people need to empower themselves to fix problems are all interesting and may need integration wth H2GC at some point - debugging and rescue tools are high on the list.  Packages of H2GC and various other things may need to be spit out for update systems to grab and deliver.
+Related stuff: The other things people need to empower themselves to fix problems are all interesting and may need integration wth H2GC at some point - debugging and rescue tools are high on the list.  Packages of H2GC and various other things may need to be spit out for update systems to grab and deliver. 
 
 LICENSE
 =======
