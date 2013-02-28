@@ -124,6 +124,10 @@ CpuTemperature.prototype = {
         var _gsmPrefs = _appSys.lookup_app('gnome-shell-extension-prefs.desktop');
         let item;
 
+	var oneliner_s = this._doExplain();
+        item = new PopupMenu.PopupMenuItem(oneliner_s.toString());
+        section.addMenuItem(item);
+
         item = new PopupMenu.PopupMenuItem("Learn");
         section.addMenuItem(item);
 	item.connect('activate', Lang.bind(this, this._doLearn));
@@ -157,8 +161,18 @@ CpuTemperature.prototype = {
 
     _doExplain: function() {	
 	global.log("In Explain");
-	// read in the file for failed test.
-        return true;    
+	// read from disk and display oneliner.teach file
+	// the file should contain a single plain english sentence with no tech jargon 
+	let oneliner_file = '/home/richbodo/.h2gc/status_oneliner.txt'
+	if (GLib.file_test(oneliner_file,1<<4)) {
+            let oneliner_object = GLib.file_get_contents(oneliner_file);
+            if(oneliner_object[0]) {
+		var oneliner_string = oneliner_object[1];
+		global.log("oneliner_string: ");
+		global.log(oneliner_string);
+            }
+	}
+        return oneliner_string;    
     },
 
     _doLearn: function() {	
