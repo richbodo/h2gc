@@ -143,8 +143,7 @@ def run_all_checks(scripts_dir, status):
                     return_code = run_check(path_plus_filename)
                     output_value += return_code
                 else:
-                    print "Check script: " + path_plus_filename + " is not executable, adding 1 and calling it a day."                 
-                    output_value += 1
+                    print "Check script: " + path_plus_filename + " is not executable, adding 1 and calling it a day."                                 output_value += 1
             else:
                 print "Skipping non check file " + path_plus_filename
 

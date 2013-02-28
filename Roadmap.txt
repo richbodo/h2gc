@@ -1,0 +1,45 @@
+
+
+First:
+
+Linux Client GUI has:
+      Plain english explanations
+      	    * read local file into menu
+      Collaboration System Opens
+            * open web browser to a page
+      Help System Opens
+            * open web browser to a page
+Server has:
+      Rest server notifies ticket system immediately if comm status is 1.
+      Crappy interface for looking at stuff.
+Mac Client has:
+      Existence
+	    * use curl and a shell script if you have to, but make it notify something
+Ticket System has:
+      Existence
+	    * creates a ticket when an email is sent its way.
+Project has:
+      Screen setup
+
+Second:
+
+Project has:
+      Overall Makefile for install
+      Fixture generator
+      	      * fill client and server dbs with data - live server test gen
+Server has:
+      Cron job checks rest server database every hour.  
+      	      * If any user has no record in last few days, notify ticket system.
+Linux Client Daemon has:
+      Wizard for checkscript creation
+Mac Client has:
+      GUI
+Android Client has:
+      Existence
+Windows Client has:
+      Existence
+
+Third:
+
+Prototype done!  
+Rewrite TDD!

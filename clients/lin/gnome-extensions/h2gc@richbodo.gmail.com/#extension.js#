@@ -157,7 +157,10 @@ CpuTemperature.prototype = {
 
     _doExplain: function() {	
 	global.log("In Explain");
-	// read in the file for failed test.
+	// read from disk and display oneliner.teach file
+	// the file should contain a single plain english sentence with no tech jargon 
+	let oneliner_file = '/sys/class/hwmon/hwmon0/temp1_input'
+	
         return true;    
     },
 
