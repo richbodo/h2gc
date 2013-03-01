@@ -8,6 +8,7 @@
 # For now running as an hourly cron job under linux.
 #
 
+from __future__ import with_statement
 import pdb
 import os
 import stat
@@ -23,6 +24,7 @@ import ConfigParser
 class Status:
     def __init__(self):
         self.overall = 0
+        self.collective_sad_string = 'Everything looks o.k!'
     def __str__(self):
         return (str(self.overall))
 
@@ -40,12 +42,12 @@ def post_report(computer, status):
     except IOError, e:
         if hasattr(e, 'reason'):
             print 'We failed to reach a server.'
-            print 'Reason: ', e.reason
+            status.collective_sad_string += 'Reason: ', e.reason
             status.overall += 2
         elif hasattr(e, 'code'):
             print 'The server couldn\'t fulfill the request.'
-            print 'Error code: ', e.code
-            status.overall += 1
+            status.collective_sad_string += 'Error code: ', e.code
+            status.overall += 1 
     else:
         print "Successfully posted data."
         response = f.read()
@@ -106,9 +108,13 @@ def get_config(config_handle, full_config):
     return parser
 
 # Logging method for Status Check runs
+# drop in replacement for print with timestamp
 #
 def sclog(logstring):
-    print logstring
+    # open logfile
+    # date = 
+    # logfile.write date + logstring
+    # close logfile
     return 0
 
 # Run a single check script
@@ -125,38 +131,66 @@ def run_check(full_executable_path):
     print "returncode: ", returncode
     return returncode
 
+# Get sad string for a given check in the scripts directory
+#
+def get_sad_string(check_file_name):
+    # The with statement automatically closes the file, I think
+    # Only works in python 2.5 and up
+    with open(check_file_name, 'r') as cf_sad_handle:
+        print ("opened: " + check_file_name)
+        check_file_string = cf_sad_handle.readline()
+        print ("read in: " + check_file_string)
+
+    return check_file_string
+
 # Run All Checkscripts
+# gather up overall status number and one line problem descriptions
 #
 def run_all_checks(scripts_dir, status):
 
     executable = stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH
-    output_value = 0
+    collective_status = 0
+    collective_sadness = ''
 
     for dirpath, dirnames, filenames in os.walk(scripts_dir):
         for currentfile in filenames:
             fileBaseName, fileExtension = os.path.splitext(currentfile)
-            path_plus_filename = os.path.join(dirpath,currentfile)
+            path_plus_checkname = os.path.join(dirpath,currentfile)
             if (fileExtension == ".check"): 
-                file_stat = os.stat(path_plus_filename).st_mode
+                file_stat = os.stat(path_plus_checkname).st_mode
                 if (file_stat & executable):
                     print "File: " + currentfile + " is executable - mode: " + oct(file_stat)
-                    return_code = run_check(path_plus_filename)
-                    output_value += return_code
+                    return_code = run_check(path_plus_checkname)
+
+                    # If check found a problem, add it's return code and sad file contents to status                    
+                    if (return_code > 0):
+                        sad_name = fileBaseName + ".sad"
+                        path_plus_sadname = os.path.join(dirpath,sad_name) 
+                        
+                        collective_status += return_code
+                        collective_sadness += get_sad_string(sad_file_name)
+
                 else:
-                    print "Check script: " + path_plus_filename + " is not executable, adding 1 and calling it a day."                                 output_value += 1
+                    print "Check script: " + path_plus_checkname + " is not executable, adding 1 and calling it a day."
+                    collective_status += 1
             else:
-                print "Skipping non check file " + path_plus_filename
+                print "Skipping non check file " + path_plus_checkname
+
+    status.collective_sad_string += collective_sadness
+    status.overall += collective_status
 
 #################################
 #
 def main():
     status=Status()
     config_dir = os.path.expanduser("~") + "/.h2gc/"
+    scripts_dir = config_dir + "scripts/"
     config_file = "main_config"
     overall_file = "status"
-    scripts_dir = config_dir + "scripts/"
+    sad_file = "sad"
     full_config = config_dir + config_file
     full_overall = config_dir + overall_file
+    full_sad = config_dir + sad_file
 
     if (os.path.isdir(config_dir) != True):
         print "Config directory does not exist.  First run assumed.  Creating.  Initializing file."
@@ -174,7 +208,7 @@ def main():
         print "Config file cannot be initialized.  We need a running mode for this situation.  Exiting."
         sys.exit(1)
 
-    # Check system health - log locally
+    # Check system health - log locally - gather overall status info
     #
     run_all_checks(scripts_dir, status)
     
@@ -191,13 +225,19 @@ def main():
 
     print "Overall status: " + str(status.overall)
 
-    # Write overall status to file
+    # Write overall status to overall status file
     #
     # --- Nothing should be affecting overall status after this point ---
     #
     overall_handle = open(full_overall, 'w+')    
     overall_handle.write(str(status.overall))
     overall_handle.close()
+
+    # Collect status one-liners from scripts directory and write out to collective status file
+    #
+    status_handle = open(full_sad, 'w+')    
+    status_handle.write(status.collective_sad_string)
+    status_handle.close()
 
     print "Done.\n"
 

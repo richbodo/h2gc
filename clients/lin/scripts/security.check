@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 # security_checks.py - module to contain security checks for linux clients
-# Status: this is mostly a placeholder for security checks, so I can continue development
+# Status: NO real checks.  this is a trival placeholder for security checks,
+# so I can continue development of other things
 #
 
+import pdb
 import os
 import subprocess
 import re
@@ -21,36 +23,36 @@ class SecurityItem:
 class Status:
     def __init__(self):
         self.overall = 0
-        self.sad = "No problems detected with your fixed storage devices.  Your hard drives, SSDs, etc. are doing fine."
+        self.sad = "No problems detected with your system security."
     def __str__(self):
-        return ("Overall Fixed Storage Status: " + str(self.overall) + "\n"
+        return ("Overall Security Status: " + str(self.overall) + "\n"
                 "Current Evaluation of Issues: " + str(self.sad) + "\n")
 
 # Check to see if any user accounts have changed
 # Depends on GNU coreutils 8.13
 # returns the md5 hash of /etc/shadow
+# REFACTOR - might do away with this, it's not a well though out test
 #
 def check_shadow_status():
-    # REFACTOR - error checking - valid md5 hash string check
     out = '\n'.join(subprocess.check_output(["sudo", "md5sum", "/etc/shadow"]).splitlines())
     md5sum_shadow = StringIO.StringIO(out).readline()
-    #print "Shadow md5: " + md5sum_shadow
+    print "Check Shadow Status says - /etc/shadow md5: " + md5sum_shadow
     try:
         md5hash_only = re.search('(.+)\s+.+', md5sum_shadow).group(1)
     except:
-        print "Looks like we don't have a valid md5sum string here here."
-    #print "Hash md5: " + md5hash_only
+        print "Could not put a valid md5 of shadow file together."
+    print "Hash md5: " + md5hash_only
     return md5hash_only
 
 # Check the status of local system security
 #
 # modifies: security list
 #
-def check_security_status(security_list, config_p):
-    md5item = security_checks.SecurityItem()
-    md5item.currmd5 = security_checks.check_shadow_status()
-    md5item.lastmd5 = config_p.get('Security', 'shadowmd5', 0)    
-    security_list.append(md5item)
+def get_security_data(security_list, config_p):
+    sec_item = SecurityItem()
+    sec_item.currmd5 = check_shadow_status()
+    sec_item.lastmd5 = config_p.get('Security', 'shadowmd5', 0)    
+    security_list.append(sec_item)
 
 # Log analysis of security data to local log file
 # modifies: status object, config file with new md5 if necesary
@@ -64,28 +66,34 @@ def log_security_data(security_list, status, config_p):
             print "Security status +50 because: " + item.currmd5 + " is NOT the same as: " + item.lastmd5 + "\n"
             config_p.set("Security","shadowmd5",item.currmd5)
         else:
-            print "Security status adds zero because: " + item.currmd5 + " is the same as: " + item.lastmd5 + "\n"
+            print "Security status +0 because: " + item.currmd5 + " is the same as: " + item.lastmd5 + "\n"
+    return status.overall
 
 # Create the minimum config file that will work if none exists
+# args: configparser object handle and a file handle
+# returns a configparser object handle or 1 on error
+# REFACTOR - needs way more error checking
 #
-#
-def init_config_file(parser, config_handle):
+def init_config_file_and_close(parser, config_handle):
     try:
+        pdb.set_trace()
         parser.add_section('Security')
-        shadow_md5sum = security_checks.check_shadow_status()
+        shadow_md5sum = check_shadow_status()
         parser.set('Security', 'shadowmd5', shadow_md5sum)
-        #pdb.set_trace()
         parser.write(config_handle)
+        config_handle.close()
     except:
         print "Could not initialize parser."
+        config_handle.close()
         return 1
 
     return parser
     
 # Get the config file data into a configparser object
+# args: configparser handle object and a filename
 # returns: a configparser object handle or 1 on error
 #
-def get_config(config_handle, full_config):
+def get_config_and_close(config_handle, full_config):
 
     parser = ConfigParser.SafeConfigParser()
     
@@ -93,16 +101,39 @@ def get_config(config_handle, full_config):
         parser.read(full_config)
     except ConfigParser.ParsingError, err:
         print "Can't read from config file at all."
+        config_handle.close()
         return 1
 
     try: 
         md5out = parser.get('Security', 'shadowmd5', 0)
     except:
         print "Didn't find the security/shadowmd5 option or something like that.  Creating new sections."     
-        return init_config_file(parser, config_handle)
+        config_handle.close()
+        config_handle = open_file_or_die(full_config, 'w')
+        return init_config_file_and_close(parser, config_handle)
         
+    config_handle.close()
     return parser
 
+# Open file or die
+# attempt to open a file in a somewhat secure way
+# args: fully qualified file name, mode
+# return: file handle on success, else program exit with return code 1 
+#
+def open_file_or_die(fq_fn, mode):
+    
+    if (os.path.isfile(fq_fn)):
+        try:
+            fh = open(fq_fn, mode)
+        except IOError as e:
+            print "Security check could not open file: " + fq_fn + " error: " + e + " Exiting."
+            exit(1)
+        return fh
+    else:
+        print "File: " + fq_fn + " is not a file. Exiting."
+        exit(1)
+
+    
 #################################
 #
 def main():
@@ -111,28 +142,18 @@ def main():
     config_dir = os.path.expanduser("~") + "/.h2gc/scripts/"
     config_file = "security.conf"
     full_config = config_dir + config_file
- 
-    # Check to see if the file exists, not hte dir
-    if (os.path.isdir(config_dir) != True):
-        print "Config directory does not exist.  We're screwed."
-        #os.makedirs(config_dir, mode=0700)
-        # write something out to .sad
-        exit(1)
+    sad_file = "security.sad"
+    full_sad = config_dir + sad_file
 
-    # Open, read entire config file in, close
-    #    
-    config_handle = open(full_config, 'r') 
-    print "opened full_config"
-    config_p = get_config(config_handle, full_config)
-    print "completed get_config"
-    config_handle.close()
+    config_handle = open_file_or_die(full_config, 'r')    
+    config_p = get_config_and_close(config_handle, full_config)
 
     if config_p == 1:
-        print "Config file cannot be initialized.  We need a running mode for this situation.  Exiting."
-        sys.exit(1)
+        print "Config file cannot be initialized.  Exiting."
+        exit(1)
 
-    returncode = check_security_status(security_list, config_p)
-    log_security_data(security_list, config_p)
+    get_security_data(security_list, config_p)
+    return_code = log_security_data(security_list, status, config_p)
 
     # Open, write entire config file out, close
     # 
@@ -140,7 +161,13 @@ def main():
     config_p.write(config_handle)
     config_handle.close()
  
-    exit(returncode)
+    # Open write sad file out, close
+    #
+    sad_handle = open(full_sad, 'w+')
+    sad_handle.write(status.sad)
+    sad_handle.close()
+    
+    exit(return_code)
 
 if __name__ == '__main__':
     main()

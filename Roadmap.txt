@@ -4,11 +4,14 @@ First:
 
 Linux Client GUI has:
       Plain english explanations
-      	    * read local file into menu
+      	    * read local file into menu - DONE
       Collaboration System Opens
             * open web browser to a page
       Help System Opens
             * open web browser to a page
+Linux Clinet Daemon has:
+      Two working trivial system checks
+      Write out one-liner status and overall status to files
 Server has:
       Rest server notifies ticket system immediately if comm status is 1.
       Crappy interface for looking at stuff.
