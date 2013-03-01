@@ -42,7 +42,7 @@ def post_report(computer, status):
     except IOError, e:
         if hasattr(e, 'reason'):
             print 'We failed to reach a server.'
-            status.collective_sad_string += 'Reason: ', e.reason
+            status.collective_sad_string += 'Reason: ', str(e.reason)
             status.overall += 2
         elif hasattr(e, 'code'):
             print 'The server couldn\'t fulfill the request.'

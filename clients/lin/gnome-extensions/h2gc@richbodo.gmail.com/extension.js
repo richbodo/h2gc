@@ -163,16 +163,17 @@ CpuTemperature.prototype = {
 	global.log("In Explain");
 	// read from disk and display oneliner.teach file
 	// the file should contain a single plain english sentence with no tech jargon 
-	let oneliner_file = '/home/richbodo/.h2gc/status_oneliner.txt'
+	let oneliner_file = GLib.get_home_dir() + '/.h2gc/sad'
 	if (GLib.file_test(oneliner_file,1<<4)) {
             let oneliner_object = GLib.file_get_contents(oneliner_file);
             if(oneliner_object[0]) {
 		var oneliner_string = oneliner_object[1];
 		global.log("oneliner_string: ");
 		global.log(oneliner_string);
-            }
+		return oneliner_string;    
+            }	    
 	}
-        return oneliner_string;    
+	return "This program can't read it's status summary - that's an internal problem."
     },
 
     _doLearn: function() {	
@@ -312,25 +313,40 @@ CpuTemperature.prototype = {
     _findSystemStatusFromFile: function(){
         var system_status_string = "System Status: ";
 	var status_file = GLib.get_home_dir() + '/.h2gc/status';
+
+	// Have to have some bad status in case we couldn't read anything in
+	// need to put more effort into detect/report/handle errors
+	// need to take an hour or two to learn javascript, too!
+	var status_modifier = "UNKNOWN"
+
 	global.log("In findSystemStatusFromFile status file is : " + status_file);
 	
         if (GLib.file_test(status_file,1<<4)) {
             let status_contents = GLib.file_get_contents(status_file);
 	    if(status_contents[0]) {
 		var status_lines = status_contents[1].toString().split("\n");
-		var status_number = parseInt(status_lines[0]);
+		status_number = parseInt(status_lines[0]);
 		global.log("status_lines: ");
 		global.log(status_lines);
 		global.log("status_number: ");
 		global.log(status_number);
-	    }
-        }
-	
-	if (status_number >= 1) {
-	    system_status_string += status_number.toString();
+	    } else {
+		system_status_string += status_modifier;
+		return system_status_string;
+	    }	
+        } else {
+	    system_status_string += status_modifier;
+	    return system_status_string;
+	}    
+
+	if ( status_number >= 1 ) {
+	    status_modifier = status_number.toString();
 	} else {
-	    system_status_string += "AWESOME";
+	    status_modifier = "AWESOME";
 	}
+	
+	system_status_string += status_modifier;
+
 	return system_status_string
     },
     

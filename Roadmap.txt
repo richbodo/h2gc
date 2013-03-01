@@ -1,17 +1,19 @@
 
+Grouped priorities into three sets.  Ambitiously these are monthly goal sets.
 
-First:
+First Set:
+============
 
 Linux Client GUI has:
-      Plain english explanations
+      Plain english explanations of problems
       	    * read local file into menu - DONE
-      Collaboration System Opens
+      Collaboration System Link that works
+            * open web browser to a page 
+      Help System Link that works
             * open web browser to a page
-      Help System Opens
-            * open web browser to a page
-Linux Clinet Daemon has:
-      Two working trivial system checks
-      Write out one-liner status and overall status to files
+Linux Client Daemon has:
+      Two working trivial system checks that it can run - DONE
+      Write out one-liner status and overall status to files - DONE
 Server has:
       Rest server notifies ticket system immediately if comm status is 1.
       Crappy interface for looking at stuff.
@@ -24,25 +26,42 @@ Ticket System has:
 Project has:
       Screen setup
 
-Second:
+Second Set:
+=============
 
 Project has:
       Overall Makefile for install
       Fixture generator
       	      * fill client and server dbs with data - live server test gen
 Server has:
-      Cron job checks rest server database every hour.  
+      Cron job that checks rest server database every hour.  
       	      * If any user has no record in last few days, notify ticket system.
+      Updated schema - checkin timestamps - map client key to userinfo table
+      Homepage that can display user-view of data
 Linux Client Daemon has:
       Wizard for checkscript creation
+      Sends client key instead of test data
 Mac Client has:
-      GUI
+      Same GUI features as Linux client
+
+Bonus Two Month Milestones:
+
 Android Client has:
       Existence
+           * just background daemon
 Windows Client has:
       Existence
+           * just background daemon
 
-Third:
+Prototype on two platforms done!  
 
-Prototype done!  
-Rewrite TDD!
+Third Set:
+============
+
+Rewrite linux client components TDD
+Write tests for server
+Package everything
+
+Later:
+
+Start on Windows and Android GUIs

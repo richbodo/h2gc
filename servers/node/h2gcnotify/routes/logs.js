@@ -14,7 +14,7 @@ db = new Db('logdb', server);
 exports.homePage = function(req, res) {
     db.collection('logs', function(err, collection) {
 	collection.find().toArray(function(err, items) {
-	    res.render('index', { title:'H2GC', sidebartitle:'N Problem Machines', loglines:items, probs:'example' });	    
+	    res.render('index', { title:'H2GC', sidebartitle:'Recent Problem Machines', loglines:items, probs:'example' });	    
 	});
     });
     

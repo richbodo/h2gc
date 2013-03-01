@@ -161,7 +161,7 @@ def main():
     config_p.write(config_handle)
     config_handle.close()
  
-    # Open write sad file out, close
+    # Open write entire sad file out, close
     #
     sad_handle = open(full_sad, 'w+')
     sad_handle.write(status.sad)
