@@ -54,16 +54,17 @@ def get_security_data(security_list, config_p):
     sec_item.lastmd5 = config_p.get('Security', 'shadowmd5', 0)    
     security_list.append(sec_item)
 
-# Log analysis of security data to local log file
-# modifies: status object, config file with new md5 if necesary
+# Analyze the security data we have, logging and updating security check files as needed
+# modifies: status object, log file, config file with new md5 if necessary
 #
-def log_security_data(security_list, status, config_p):
+def analyze_security_data(security_list, status, config_p):
     
     for item in security_list:
         print item
         if item.currmd5.strip() != item.lastmd5.strip():
             status.overall += 50
             print "Security status +50 because: " + item.currmd5 + " is NOT the same as: " + item.lastmd5 + "\n"
+            status.sad = "A user was added or removed, or a password was changed.  We need to make sure that's o.k." 
             config_p.set("Security","shadowmd5",item.currmd5)
         else:
             print "Security status +0 because: " + item.currmd5 + " is the same as: " + item.lastmd5 + "\n"
@@ -149,21 +150,24 @@ def main():
     config_p = get_config_and_close(config_handle, full_config)
 
     if config_p == 1:
-        print "Config file cannot be initialized.  Exiting."
-        exit(1)
+        print "Config file cannot be initialized.  Not good, really."
+        status.sad = "Security check can't read it's config file."
+        exit(3)
 
     get_security_data(security_list, config_p)
-    return_code = log_security_data(security_list, status, config_p)
+    return_code = analyze_security_data(security_list, status, config_p)
 
     # Open, write entire config file out, close
     # 
-    config_handle = open(full_config, 'w+')
+    config_handle = open(full_config, 'w')
     config_p.write(config_handle)
     config_handle.close()
  
     # Open write entire sad file out, close
     #
-    sad_handle = open(full_sad, 'w+')
+    sad_handle = open(full_sad, 'w')
+    sad_handle.truncate()
+    print "about to write: " + status.sad + " to: " + full_sad
     sad_handle.write(status.sad)
     sad_handle.close()
     

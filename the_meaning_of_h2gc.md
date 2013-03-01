@@ -13,7 +13,7 @@ H2GC is also kind of fun to work on and gives a good overview of a lot of differ
 
 When we all have implants you'll thank me!  Or thank *us*, if this ever becomes useful and other people decide to help out.  If it doesn't, well, then, this document should fit right in with the manifestos, platforms, and philosophies of other computer programs, to be banned from the universe and retroactively deleted by the Pan-Galactic-Temporal-Time-Wasting-Committee, in which case you probably aren't really reading this right now, as it has been replaced by a long-winded admonition against philosophical statements, redundancy, and run-on sentences.
 
-In any case, I fully expect that this idea can be worked on for as many years as humans are around, meaningfully or not. 
+In any case, I fully expect that this idea can be worked on for as many years as humans are around, meaningfully or not.  When you look upon monitoring as something that empowers and encourages people, the possibilities are virtually endless.
 
 [1] www.ctlab.org/documents/How%20Complex%20Systems%20Fail.pdf
 [2] http://www.wired.com/business/2012/08/hackers-walk-all-over-you/

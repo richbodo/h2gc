@@ -4,11 +4,14 @@ Grouped priorities into three sets.  Ambitiously these are monthly goal sets.
 First Set:
 ============
 
+Project has:
+      Screen setup - DONE
+      Basic makefiles where necessary
 Linux Client GUI has:
       Plain english explanations of problems
       	    * read local file into menu - DONE
       Collaboration System Link that works
-            * open web browser to a page 
+            * open web browser to a page - DONE
       Help System Link that works
             * open web browser to a page
 Linux Client Daemon has:
@@ -16,13 +19,10 @@ Linux Client Daemon has:
       Write out one-liner status and overall status to files - DONE
 Server has:
       Rest server notifies ticket system immediately if comm status is 1.
-      Crappy interface for looking at stuff.
+      Crappy interface for looking at stuff - but most recent first!
 Mac Client has:
       Existence
 	    * use curl and a shell script if you have to, but make it notify something
-Project has:
-      Screen setup - DONE
-      Basic makefiles where necessary
 
 Bonus Milestones:
 =================

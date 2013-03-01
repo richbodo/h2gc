@@ -24,9 +24,12 @@ import ConfigParser
 class Status:
     def __init__(self):
         self.overall = 0
-        self.collective_sad_string = 'Everything looks o.k!'
+        self.collective_sad_string = ""
+        self.top_priority = ""
     def __str__(self):
-        return (str(self.overall))
+        return ("Overall System Status: " + str(self.overall) + "\n"
+                "Current Evaluation of Issues: " + str(self.collective_sad_string) + "\n"
+                "Top priority: " + str(self.top_priority))
 
 # POST log entry to server
 # modifies: status object
@@ -34,7 +37,7 @@ class Status:
 def post_report(computer, status):
     url = "http://localhost:3000/logs"
 
-    data = json.dumps({"computer": str(computer), "status": str(status)})
+    data = json.dumps({"computer": str(computer), "status": str(status.overall)})
     req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
 
     try:
@@ -75,9 +78,9 @@ def log_storage_data(sd_ob_list, status):
 #
 def init_config_file(parser, config_handle):
     try:
-        parser.add_section('Security')
-        shadow_md5sum = security_checks.check_shadow_status()
-        parser.set('Security', 'shadowmd5', shadow_md5sum)
+        parser.add_section('Placeholder')
+        foo = "bar"
+        parser.set('Placeholder', 'foo', foo)
         #pdb.set_trace()
         parser.write(config_handle)
     except:
@@ -100,9 +103,9 @@ def get_config(config_handle, full_config):
         return 1
 
     try: 
-        md5out = parser.get('Security', 'shadowmd5', 0)
+        stuff = parser.get('Placeholder', 'foo', 0)
     except:
-        print "Didn't find the security/shadowmd5 option or something like that.  Creating new sections."     
+        print "Didn't find the placeholder/foo section or something like that.  Creating new sections."     
         return init_config_file(parser, config_handle)
         
     return parser
@@ -134,8 +137,7 @@ def run_check(full_executable_path):
 # Get sad string for a given check in the scripts directory
 #
 def get_sad_string(check_file_name):
-    # The with statement automatically closes the file, I think
-    # Only works in python 2.5 and up
+    # The with statement automatically closes the file, I think - only works in python 2.5 and up
     with open(check_file_name, 'r') as cf_sad_handle:
         print ("opened: " + check_file_name)
         check_file_string = cf_sad_handle.readline()
@@ -144,13 +146,17 @@ def get_sad_string(check_file_name):
     return check_file_string
 
 # Run All Checkscripts
-# gather up overall status number and one line problem descriptions
+# Fill out status object as we go:
+#  * gather up overall status number and one line problem descriptions
+#  * calculate the top_priority_check based on return value (probably not the best way to do this)
 #
 def run_all_checks(scripts_dir, status):
 
     executable = stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH
     collective_status = 0
-    collective_sadness = ''
+    collective_sadness = ""
+    top_priority_check = ""
+    top_priority_value = 0
 
     for dirpath, dirnames, filenames in os.walk(scripts_dir):
         for currentfile in filenames:
@@ -161,23 +167,27 @@ def run_all_checks(scripts_dir, status):
                 if (file_stat & executable):
                     print "File: " + currentfile + " is executable - mode: " + oct(file_stat)
                     return_code = run_check(path_plus_checkname)
-
+                    if (return_code > top_priority_value):
+                        top_priority_check = fileBaseName
+                        top_priority_value = return_code
+                        print "New Top Priority: " + top_priority_check + " with returncode: " + str(top_priority_value)
                     # If check found a problem, add it's return code and sad file contents to status                    
                     if (return_code > 0):
                         sad_name = fileBaseName + ".sad"
-                        path_plus_sadname = os.path.join(dirpath,sad_name) 
-                        
+                        path_plus_sadname = os.path.join(dirpath,sad_name)                        
                         collective_status += return_code
-                        collective_sadness += get_sad_string(sad_file_name)
-
+                        collective_sadness += get_sad_string(path_plus_sadname)
                 else:
                     print "Check script: " + path_plus_checkname + " is not executable, adding 1 and calling it a day."
                     collective_status += 1
             else:
                 print "Skipping non check file " + path_plus_checkname
 
+    if (collective_sadness == ""):
+        collective_sadness = "DON'T Panic. Everything looks like it's running o.k."
     status.collective_sad_string += collective_sadness
     status.overall += collective_status
+    status.top_priority = top_priority_check
 
 #################################
 #
@@ -185,12 +195,19 @@ def main():
     status=Status()
     config_dir = os.path.expanduser("~") + "/.h2gc/"
     scripts_dir = config_dir + "scripts/"
-    config_file = "main_config"
-    overall_file = "status"
-    sad_file = "sad"
+
+    config_file = "config"
     full_config = config_dir + config_file
+
+    overall_file = "status"
     full_overall = config_dir + overall_file
+
+    sad_file = "sad"
     full_sad = config_dir + sad_file
+
+    priority_file = "priority"
+    full_priority = config_dir + priority_file
+    
 
     if (os.path.isdir(config_dir) != True):
         print "Config directory does not exist.  First run assumed.  Creating.  Initializing file."
@@ -204,26 +221,24 @@ def main():
     print "completed get_config"
     config_handle.close()
 
-    if config_p == 1:
-        print "Config file cannot be initialized.  We need a running mode for this situation.  Exiting."
-        sys.exit(1)
-
+        
     # Check system health - log locally - gather overall status info
     #
     run_all_checks(scripts_dir, status)
     
     # Open, write entire config file out, close
     # 
-    config_handle = open(full_config, 'w+')
-    config_p.write(config_handle)
-    config_handle.close()
+    if config_p == 1:
+        print "Client daemon config file could not be initialized.  Not a big deal as I'm not using it right now"
+    else:
+        config_handle = open(full_config, 'w+')
+        config_p.write(config_handle)
+        config_handle.close()
  
     # Post overall status to server, if available
     # TODO: Use system primary interface mac as key to a unique, meaningless id instead of this hardcoded test string
     #
     post_report("grandma@example.com", status)
-
-    print "Overall status: " + str(status.overall)
 
     # Write overall status to overall status file
     #
@@ -233,13 +248,20 @@ def main():
     overall_handle.write(str(status.overall))
     overall_handle.close()
 
-    # Collect status one-liners from scripts directory and write out to collective status file
+    # Write the collective list of one line problem descriptions to the sad file
     #
     status_handle = open(full_sad, 'w+')    
     status_handle.write(status.collective_sad_string)
     status_handle.close()
 
-    print "Done.\n"
+    # Write the name of the check that is the highest priority right now to the priorty file
+    #
+    status_handle = open(full_priority, 'w+')    
+    status_handle.write(status.top_priority)
+    status_handle.close()
+
+    print "Final status written:"
+    print status
 
 if __name__ == '__main__':
     main()

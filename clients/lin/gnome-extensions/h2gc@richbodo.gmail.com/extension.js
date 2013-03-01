@@ -167,7 +167,7 @@ CpuTemperature.prototype = {
 
     _doExplain: function() {	
 	global.log("In Explain");
-	// read from disk and display oneliner.teach file
+	// read from disk and display oneliner sad file
 	// the file should contain a single plain english sentence with no tech jargon 
 	let oneliner_file = GLib.get_home_dir() + '/.h2gc/sad'
 	if (GLib.file_test(oneliner_file,1<<4)) {
