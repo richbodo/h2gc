@@ -7,12 +7,13 @@ The HitchHikers Guide to your Computer (H2GC) is a program that aims to give ord
 
 Any user of the H2GC can use a super simple graphical interface to learn about their computer, collaborate with others, and contact knowledgable people. 
 
-In todays world, centrally located computer monitoring systems try to grope around and figure out what is going on with peoples computers, phones, and network services, forwarding hundreds of issues to an IT person.  That IT person that is overworked and bored out of their mind.  
-Imagine a world where users add their own things to be monitored, build tests, and collaborate with one another to solve problems - forwarding only what data is needed to systems operated by an IT person.  *That* IT person is learning along with everyone else as he helps build the tricky tests for new situations.
+In most organizations today, centrally located computer monitoring systems try to grope around and figure out what is going on with peoples computers, phones, and network services - forwarding hundreds of issues to the IT person.  That IT person is overworked and bored out of their mind.  
+
+Imagine a world where anyone could add things to be monitored, and build tests, and collaborate with one another to solve problems - forwarding only what data is needed to systems operated by an IT person.  *That* IT person is learning along with everyone else as he/she helps build tests for new situations, and advocating for test-first deployment of new stuff.
 
 Sounds like a more reasonable way to keep a complex system running, right?  That's what this project is all about.
 
-If realized, this will increase privacy, and encourage many users to take more responsiblity and to learn more about their computing systems.  To understand why that might be useful, see the_meaning_of_h2gc.
+If realized, H2GC will encourage users to take more responsiblity and to learn more about their computing systems.  It might also increase their privacy and security, if we get those parts right.  To understand why this all might be useful, see the_meaning_of_h2gc.
 
 This program has a user interface, called the "client GUI".
 
@@ -20,7 +21,9 @@ The manifestation of the client GUI is a single icon or text button, prominently
 
 The client uses a local background process to perform system checks, which updates the GUI.  That's called the "client daemon".  I know.
 
-A server component of H2GC is also available.  Here's where I reveal my true nerd self and drop into technical jargon.  The H2GC server is simple and lightweight - it ferries non-sensitive data sent from the client to other services, such as monitoring systems (nagios, observium, zenoss) or helpdesk systems (self-hosted, google apps, salesforce, etc.).
+A server component of H2GC is also available.  Here's where I reveal my true nerd self and drop into technical jargon.  DON'T PANIC. 
+
+The H2GC server is simple and lightweight - it ferries non-sensitive data sent from the client to other services, such as monitoring systems (nagios, observium, zenoss) or helpdesk systems (self-hosted, google apps, salesforce, etc.).
 
 One important goal of H2GC is to make it extremely easy to enhance the client app to check more system issues.  On most systems it should be possible to write a shell script and drop it into a directory for the H2GC client daemon to pick up.  On other systems (ios, android), one is forced to build tools to make it easy for users to write system checks.  Each supported client OS will have a different method of doing this.  Ultimately we want people who can't script to either learn how, or use a graphical tool to build system checks.
 
