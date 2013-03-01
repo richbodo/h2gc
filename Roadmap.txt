@@ -20,17 +20,25 @@ Server has:
 Mac Client has:
       Existence
 	    * use curl and a shell script if you have to, but make it notify something
-Ticket System has:
-      Existence
-	    * creates a ticket when an email is sent its way.
 Project has:
-      Screen setup
+      Screen setup - DONE
+      Basic makefiles where necessary
+
+Bonus Milestones:
+=================
+
+Ticket System has: (ticket system is just a test fixture)
+      Existence
+	    * Google Apps creates a ticket when an email is sent its way.
+Monitoring Syste has: (monitoring system is just a test fixture)
+      Existence
+	    * Nagios can RCV an alert from a the H2GC server 
 
 Second Set:
 =============
 
 Project has:
-      Overall Makefile for install
+      Overall Makefile for install of all client and server components
       Fixture generator
       	      * fill client and server dbs with data - live server test gen
 Server has:
@@ -44,24 +52,26 @@ Linux Client Daemon has:
 Mac Client has:
       Same GUI features as Linux client
 
-Bonus Two Month Milestones:
+Bonus Milestones:
+=================
 
-Android Client has:
-      Existence
-           * just background daemon
 Windows Client has:
       Existence
-           * just background daemon
+           * background daemon first
+      Basic GUI
+      	   * same features as linux client GUI
 
-Prototype on two platforms done!  
+Proof of principle!  Prototype on at least two platforms done!  
 
 Third Set:
-============
+==========
 
-Rewrite linux client components TDD
+Rewrite linux and mac client components TDD
 Write tests for server
 Package everything
 
 Later:
+======
 
-Start on Windows and Android GUIs
+Android and iOS clients
+

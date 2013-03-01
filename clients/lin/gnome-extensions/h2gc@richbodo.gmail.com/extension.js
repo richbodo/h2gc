@@ -1,14 +1,16 @@
-const St = imports.gi.St;
 const Lang = imports.lang;
-const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
-const Main = imports.ui.main;
+const St = imports.gi.St;
 const GLib = imports.gi.GLib;
+const Shell = imports.gi.Shell;
+const Gdk = imports.gi.Gdk;
+const Gtk = imports.gi.Gtk
+const Main = imports.ui.main;
 const Util = imports.misc.util;
 const Mainloop = imports.mainloop;
+const PanelMenu = imports.ui.panelMenu;
+const PopupMenu = imports.ui.popupMenu;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
-const Shell = imports.gi.Shell;
 
 let settings;
 let metadata = Me.metadata;
@@ -128,6 +130,10 @@ CpuTemperature.prototype = {
         item = new PopupMenu.PopupMenuItem(oneliner_s.toString());
         section.addMenuItem(item);
 
+        item = new PopupMenu.PopupMenuItem("Search");
+        section.addMenuItem(item);
+	item.connect('activate', Lang.bind(this, this._doSearch));
+
         item = new PopupMenu.PopupMenuItem("Learn");
         section.addMenuItem(item);
 	item.connect('activate', Lang.bind(this, this._doLearn));
@@ -136,9 +142,9 @@ CpuTemperature.prototype = {
         section.addMenuItem(item);
 	item.connect('activate', Lang.bind(this, this._doCollaborate));
 
-        item = new PopupMenu.PopupMenuItem(_("Contact A Guru"));
+        item = new PopupMenu.PopupMenuItem(_("Get Help"));
         section.addMenuItem(item);
-	item.connect('activate', Lang.bind(this, this._doContactGuru));	
+	item.connect('activate', Lang.bind(this, this._doGetHelp));	
 
 	// Add the preferences menu item
 	//
@@ -176,12 +182,26 @@ CpuTemperature.prototype = {
 	return "This program can't read it's status summary - that's an internal problem."
     },
 
-    _doLearn: function() {	
-	global.log("In Learn About It");
-	// open local web page
-	// sensible-browser in debian-derived
-	// xdg-open, x-www-browser in some others
-	// since we are using gnome - gnome-open URL works as well
+    _doSearch: function() {	
+	global.log("In Search");
+	// need some default search text in prefs, or some better way to handle a default here
+	var search_text = "hitchhikers guide to your computer h2gc"
+
+	// read from disk and search on oneliner search file 
+	// the file should contain search terms regarding the most serious problem at hand
+	let search_terms_file = GLib.get_home_dir() + '/.h2gc/search'
+	if (GLib.file_test(search_terms_file,1<<4)) {
+            let search_terms_object = GLib.file_get_contents(search_terms_file);
+            if(search_terms_object[0]) {
+		var search_terms_string = search_terms_object[1];
+		global.log("search_terms_string: ");
+		global.log(search_terms_string);
+		search_text = search_terms_string 
+            }	    
+	}	
+	let search_engine = "https://encrypted.google.com/search?q="
+	let searchurl = search_engine + search_text;
+        Gtk.show_uri(null, searchurl, Gdk.CURRENT_TIME);
         return true;    
     },
 
@@ -192,8 +212,15 @@ CpuTemperature.prototype = {
         return true;    
     },
 
-    _doContactGuru: function() {	
-	global.log("In Contact a Guru.");
+    _doLearn: function() {	
+	global.log("In Learn.");
+	// open wiki
+	//
+        return true;    
+    },
+
+    _doGetHelp: function() {	
+	global.log("In Get Help.");
 	// open default email application
         return true;    
     },
@@ -313,11 +340,12 @@ CpuTemperature.prototype = {
     _findSystemStatusFromFile: function(){
         var system_status_string = "System Status: ";
 	var status_file = GLib.get_home_dir() + '/.h2gc/status';
-
+        
 	// Have to have some bad status in case we couldn't read anything in
 	// need to put more effort into detect/report/handle errors
 	// need to take an hour or two to learn javascript, too!
 	var status_modifier = "UNKNOWN"
+	var status_number = 1;
 
 	global.log("In findSystemStatusFromFile status file is : " + status_file);
 	

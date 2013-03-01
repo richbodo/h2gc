@@ -15,11 +15,11 @@ I'm calling scripts that are used to check status of something checkscripts.
 How to make a checkscript for use with H2GC
 ============================================
 
-You could just write a script and throw it in the H2GC directory to have it run, but that would suck.
+You could just write a script and throw it in the H2GC directory to have it run, but we want to do better than that.
 
-In the future, StatusCheck will have to have a mechanism to prevent just anyone from doing that, and also to enforce some rules.
+There are loads of ways to improve this system, however, where I am today is just getting something working.
 
-So here goes.
+So here are some rules that one can follow to make checks friendly to end users.
 
 Note the goals here are simplicity, ease of use for end-users, extensibility, update-system-angnostic-ness, and check-freshness.
 
@@ -41,24 +41,31 @@ checkname.teach - teach user about the check, how it works, and the issue in gen
 
 checkname.sad - short (one sentence) explanation to end user of what it means when an error is returned.  it is good but not
 required that the check script update this to reflect a specific issue your script has identified.  this is your opportunity
-to be specific and not fuzzy.  this is also the place for your script to tell us what problems it runs into when it can't perform
+to be specific and not fuzzy.  This is one place for your script to tell us what problems it runs into when it can't perform
 it's job.
 
 checkname.log (optional) - Ongoing log file for your checkscript (StatusCheck.py will truncate for you) - can be shown to user with 
-the .sad file.
+the .sad file.  This is where we'll go to figure out the details of what went wrong.
 
 checkname.cron (optional) - if this file exists, then StatusCheck.py will not try to run this check.
-instead, statuscheck will check the contents of this 
-file for a single integer between 0 and 100, and report that as a result. (We assume you run the checkscript under cron,
-or that it is run as part of another system, and has been adapted to try to echo some data to h2gc).  Yet another note to self to think
-about the security implications before I encourage anyone to use this system.
+instead, statuscheck will check the contents of this file for a single integer between 0 and 100, and report that as a result. 
+(If this file exists we assume you are running a system check under cron, or that it is run as part of another system, and you have adapted it to try to echo some data to h2gc).  Yet another note to self to think about the security implications before I encourage anyone to use this system.
 
 checkname.conf (optional) - if you want your own config.  
 
 Open questions (updates/sharing/pushing of checkscripts): 
+=========================================================
+
+How can this be made better?  Oh, lots of ways.  Off the top of my head:
+
+     * StatusCheck will have to have a mechanism to prevent just anyone from doing dropping a script in it's scripts dir
+     * StatusCheck will have to validate scripts and possibly enforce some rules.
+     * Some checks can be created without knowing how to code, given the proper gui.
 
 Most, if not all, of the checkscript files could be sections of a wiki page, pulled down periodically via API or wget
 (with a link to the latest online version embedded), while the client app itself
 could be pushed periodically via puppet or chef, or could update itself via the OS update system.
 
 Have to take a look at what others are doing.  Tons of security issues.
+
+I want to go to there ->  http://www.python.org/dev/peps/pep-0020/

@@ -1,8 +1,0 @@
-{
-   "shell-version": ["3.6"], 
-   "uuid": "h2gc@richbodo.gmail.com", 
-   "name": "Icon manipulation", 
-   "description": "Test to change icon in tray based on status of files on disk", 
-   "url": "https://github.com/richbodo/h2gc.git",
-   "original-authors": "Finnbarr P. Murphy"
-}
