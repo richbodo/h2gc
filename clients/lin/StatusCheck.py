@@ -2,13 +2,14 @@
 
 # StatusCheck.py - main system status check daemon for h2gc-linux 
 #
-# Status: basically works but super primitive and not useful yet
+# Status: basically works but super primitive alpha
 #
 # Functionality:
 #
 #   StatusCheck.py runs all the status checkscripts in the /scripts directory
-#   It summarizes the outcome of each checkscript, and writes the summary out.
+#   It summarizes the outcome of each checkscript, and writes summary data to files.
 #   (Currently writes into files in the ~/.h2gc directory.)
+#   It also sends a status notification to the h2gc notifier application.
 #   Once that is done, it stops.  It allows the client GUI to read the summary data
 #   in, along with data from the /scripts directory and the web, informing the
 #   end user of the system status.

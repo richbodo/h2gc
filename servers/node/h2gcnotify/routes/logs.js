@@ -64,6 +64,8 @@ exports.addLog = function(req, res) {
     var log = req.body;
     console.log('Adding log: ' + JSON.stringify(log));
     db.collection('logs', function(err, collection) {
+
+
 	collection.insert(log, {safe:true}, function(err, result) {
 	    if (err) {
 		res.send({'error':'An error has occurred'});
@@ -72,6 +74,10 @@ exports.addLog = function(req, res) {
 		res.send(result[0]);
 	    }
 	});
+
+
+
+
     });
 }
  
@@ -130,10 +136,12 @@ var populateDB = function() {
 	{
 	    computer: "asfasdfsadfasf",
 	    status: "0"
+	    datetime: "124312432134"
 	},
 	{
 	    computer: "qerqwerwqreqwerqre",
 	    status: "0"
+	    datetime: "3653464563"
 	}];
 
 db.collection('logs', function(err, collection) {

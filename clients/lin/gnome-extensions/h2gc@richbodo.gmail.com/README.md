@@ -1,12 +1,15 @@
 
 
-
 **H2GC** is a client monitoring extension.
 
 This version is based on gnome-shell-extension-cpu-temperature, 
+which is an extension for displaying system temperature data in
+the top panel when running GNOME Shell
 
-which  is an extension for displaying
-system temperature data in GNOME Shell
+Originally based on the weather gnome extension - looking to use a symbolic
+icon (happy face when checks are o.k., frowny when checks are bad)
+instead of text in the notification menu.  The icon caused flickering
+that was hard to debug so no icon option for now.
 
 Installation
 ------------
@@ -17,8 +20,8 @@ Alt-F2, r
 Configuration
 ---------------------
 
-this is part of a larger application, but for now we're just palying around, 
-take a look at the README for the larger project.
+this is part of a larger application, 
+take a look at the README for the H2GC project on github.
 
 Features
 ---------

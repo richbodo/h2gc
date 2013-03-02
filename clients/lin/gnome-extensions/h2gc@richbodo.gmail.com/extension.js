@@ -235,9 +235,13 @@ CpuTemperature.prototype = {
         return true;    
     },
 
-    _doCollaborate: function() {	
+    _doCollaborate: function() {
 	global.log("In Collaborate.");
-	
+	// could go to a specific chatroom for specific problems, but I think that's overkill for most orgs
+	// if it were an external chatroom, like irc or something, then I can see doing that.
+	let chatroom = "https://kungfuvrobots.hipchat.com/chat"
+	global.log(chatroom)
+        Gtk.show_uri(null, chatroom, Gdk.CURRENT_TIME);
         return true;    
     },
 
@@ -280,8 +284,10 @@ CpuTemperature.prototype = {
     },
 
     _doGetHelp: function() {	
+	// Write debug summary to file
+	// Send a ticket to the support system
 	global.log("In Get Help.");
-	// open default email application
+	
         return true;    
     },
 
@@ -427,15 +433,12 @@ CpuTemperature.prototype = {
 	    return system_status_string;
 	}    
 
-	if ( status_number >= 10 ) {
-	    status_modifier = "OK";
-	    if ( status_number >=25 ) { status_modifier = "MINOR ISSUES"; }
-	    if ( status_number >=50 ) { status_modifier = "MAJOR ISSUES"; }
-            if ( status_number >=75 ) { status_modifier = "IMMEDIATE ACTION REQUIRED"; }
-	} else {
-	    status_modifier = "AWESOME";
-	}
-	
+        if ( status_number >=75 ) { status_modifier = "IMMEDIATE ACTION REQUIRED"; }
+	else if ( status_number >=50 ) { status_modifier = "MAJOR ISSUES"; }
+	else if ( status_number >=25 ) { status_modifier = "MINOR ISSUES"; }
+	else if ( status_number >=10 ) {	status_modifier = "OK"; }
+	else status_modifier = "AWESOME";
+
 	system_status_string += status_modifier;
 
 	return system_status_string
