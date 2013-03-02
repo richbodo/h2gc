@@ -6,14 +6,16 @@ First Set:
 
 Project has:
       Screen setup - DONE
-      Basic makefiles where necessary
+      Basic makefiles where necessary - DONE
 Linux Client GUI has:
       Plain english explanations of problems
       	    * read local file into menu - DONE
+      Search link that works
+            * open search engine with terms that match problem - DONE
       Collaboration System Link that works
-            * open web browser to a page - DONE
+            * open browser to relevant chatroom or group 
       Help System Link that works
-            * open web browser to a page
+      	    * ideally a local copy of an external wiki page, plus local log file and .teach files
 Linux Client Daemon has:
       Two working trivial system checks that it can run - DONE
       Write out one-liner status and overall status to files - DONE
@@ -30,7 +32,7 @@ Bonus Milestones:
 Ticket System has: (ticket system is just a test fixture)
       Existence
 	    * Google Apps creates a ticket when an email is sent its way.
-Monitoring Syste has: (monitoring system is just a test fixture)
+Monitoring System has: (monitoring system is just a test fixture)
       Existence
 	    * Nagios can RCV an alert from a the H2GC server 
 

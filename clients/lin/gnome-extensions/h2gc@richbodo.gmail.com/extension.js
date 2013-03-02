@@ -186,19 +186,45 @@ CpuTemperature.prototype = {
 	global.log("In Search");
 	// need some default search text in prefs, or some better way to handle a default here
 	var search_text = "hitchhikers guide to your computer h2gc"
+	var priority_text = ""
 
-	// read from disk and search on oneliner search file 
-	// the file should contain search terms regarding the most serious problem at hand
-	let search_terms_file = GLib.get_home_dir() + '/.h2gc/search'
+	// the priority file should contain the name of the check that is most seriously troubling
+	// if the priority file is empty, well, I'm not sure what we should do.  maybe open to the default search 
+	let priority_file = GLib.get_home_dir() + '/.h2gc/priority'
+	if (GLib.file_test(priority_file,1<<4)) {
+            let priority_object = GLib.file_get_contents(priority_file);
+            if(priority_object[0]) {
+		var priority_string = priority_object[1];
+		global.log("priority_string: ");
+		global.log(priority_string);
+		priority_text = priority_string; 
+            }	    
+	}	
+
+	if (priority_text == "") {
+	    // Open the web browser to search on the terms recommended
+	    //
+	    global.log("No Priority Found.");
+	    let search_engine = "https://encrypted.google.com/search?q="
+	    let searchurl = search_engine + search_text;
+            Gtk.show_uri(null, searchurl, Gdk.CURRENT_TIME);
+            return true;
+        }
+ 
+	// the checkname.search file contains search terms regarding the most serious problem at hand
+	let search_terms_file = GLib.get_home_dir() + "/.h2gc/scripts/" + priority_string + ".search"
 	if (GLib.file_test(search_terms_file,1<<4)) {
             let search_terms_object = GLib.file_get_contents(search_terms_file);
             if(search_terms_object[0]) {
 		var search_terms_string = search_terms_object[1];
 		global.log("search_terms_string: ");
 		global.log(search_terms_string);
-		search_text = search_terms_string 
+		search_text = search_terms_string; 
             }	    
 	}	
+
+	// Open the web browser to search on the terms recommended
+	//
 	let search_engine = "https://encrypted.google.com/search?q="
 	let searchurl = search_engine + search_text;
         Gtk.show_uri(null, searchurl, Gdk.CURRENT_TIME);

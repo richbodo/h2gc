@@ -9,7 +9,7 @@ Any user of the H2GC can use a super simple graphical interface to learn about t
 
 In most organizations today, centrally located computer monitoring systems try to grope around and figure out what is going on with peoples computers, phones, and network services - forwarding hundreds of issues to the IT person.  That IT person is overworked and bored out of their mind.  
 
-Imagine a world where anyone could add things to be monitored, and build tests, and collaborate with one another to solve problems - forwarding only what data is needed to systems operated by an IT person.  *That* IT person is learning along with everyone else as he/she helps build tests for new situations, and advocating for test-first deployment of new stuff.
+What if anyone could add things to be monitored, and build tests, and collaborate with one another to solve problems - forwarding only what data is needed to systems operated by an IT person.  *That* IT person is learning along with everyone else as he/she helps build tests for new situations, and advocating for test-first deployment of new stuff.
 
 Sounds like a more reasonable way to keep a complex system running, right?  That's what this project is all about.
 

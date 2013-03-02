@@ -1,11 +1,33 @@
 #!/usr/bin/env python
 
 # StatusCheck.py - main system status check daemon for h2gc-linux 
+#
 # Status: basically works but super primitive and not useful yet
 #
-# A lot of checks need to run as superuser.
+# Functionality:
+#
+#   StatusCheck.py runs all the status checkscripts in the /scripts directory
+#   It summarizes the outcome of each checkscript, and writes the summary out.
+#   (Currently writes into files in the ~/.h2gc directory.)
+#   Once that is done, it stops.  It allows the client GUI to read the summary data
+#   in, along with data from the /scripts directory and the web, informing the
+#   end user of the system status.
+#
+#   Files this program writes out (all in ~/.h2gc):
+#
+#   priority - writes a single word containing the name of the check that is most concerning, if any
+#   sad - collected one-liner descriptions from all the system checks of issues outstanding 
+#   status - a fuzzy number from 0 to 100 representing the percent hosed the system is 
+#   log - any log entries that this script itself generates
+#
+# TODO:
+#
+# A lot of checks need to run as superuser.  Disconcerting.
 # Consider adding passwordless sudo user for this script.
 # For now running as an hourly cron job under linux.
+#
+#
+#
 #
 
 from __future__ import with_statement
@@ -220,12 +242,11 @@ def main():
     config_p = get_config(config_handle, full_config)
     print "completed get_config"
     config_handle.close()
-
         
     # Check system health - log locally - gather overall status info
     #
     run_all_checks(scripts_dir, status)
-    
+
     # Open, write entire config file out, close
     # 
     if config_p == 1:
