@@ -1,21 +1,21 @@
 h2gc
 ====
 
-This is all very theoretical as not much works, yet.  But since you are here, I assume you are wondering what this is.
+This is all very theoretical as not much works, yet.  But since you are here, I assume you are wondering what this is...
 
 The HitchHikers Guide to your Computer (H2GC) is a program that aims to give ordinary people a fighting chance to learn about and solve their own computer problems.  
 
-Any user of the H2GC can use a super simple graphical interface to learn about their computer, collaborate with others, and contact knowledgable people. 
+Any user of the H2GC can use a super-simple platform-specific interface to learn about their computer, collaborate with others, and contact knowledgable people. 
 
-In most organizations today, centrally located computer monitoring systems try to grope around and figure out what is going on with peoples computers, phones, and network services - forwarding hundreds of issues to the IT person.  That IT person is overworked and bored out of their mind.  
+How client monitoring works today: Centrally located computer monitoring systems try to grope around the net and figure out what is going on with peoples computers, phones, and network services - forwarding hundreds of issues to an IT person.  That IT person is overworked and bored out of his or her mind.  
 
-What if anyone could add things to be monitored, and build tests, and collaborate with one another to solve problems - forwarding only what data is needed to systems operated by an IT person.  *That* IT person is learning along with everyone else as he/she helps build tests for new situations, and advocating for test-first deployment of new stuff.
+What if any user could add things to be monitored, and build tests, and collaborate with one others to solve their problems - forwarding only what data is needed to systems operated by an IT person.  *That* IT person is learning along with everyone else as he/she helps build tests for new situations.
 
 Sounds like a more reasonable way to keep a complex system running, right?  That's what this project is all about.
 
 If realized, H2GC will encourage users to take more responsiblity and to learn more about their computing systems.  It might also increase their privacy and security, if we get those parts right.  To understand why this all might be useful, see the_meaning_of_h2gc.
 
-This program has a user interface, called the "client GUI".
+This program has a user interface, we'll call it the "client GUI".
 
 The manifestation of the client GUI is a single icon or text button, prominently displayed, notifying the user of any dysfunctional operation of their computing system.  The icon can be clicked (moused over, selected, touched, whatever) and a menu of options will allow the user to diagnose the problem, learn about the problem in plain english, and get help.  
 
@@ -41,4 +41,4 @@ Any questions just ask. richbodo@gmail.com
 WANT TO WORK ON THIS?
 =====================
 
-I would love to work with you.  Just clone the repo and contact me.  We'll get rolling.
+I would love to work with you.  Just clone the repo and contact me.  We'll get rolling. 

@@ -13,12 +13,12 @@ Linux Client GUI has:
       Search link that works
             * open search engine with terms that match problem - DONE
       Collaboration System Link that works
-            * open browser to relevant chatroom or group 
+            * open browser to relevant chatroom or group collaboration page
       Help System Link that works
-      	    * ideally a local copy of an external wiki page, plus local log file and .teach files
+      	    * ideally take the user to a local page that links to the appropriate wiki page, plus local log file and .teach files
 Linux Client Daemon has:
       Two working trivial system checks that it can run - DONE
-      Write out one-liner status and overall status to files - DONE
+      Write out status descriptions, overall status, top priority to files - DONE
 Server has:
       Rest server notifies ticket system immediately if comm status is 1.
       Crappy interface for looking at stuff - but most recent first!
@@ -51,6 +51,8 @@ Server has:
 Linux Client Daemon has:
       Wizard for checkscript creation
       Sends client key instead of test data
+Linux GUI has:
+      Local copies of external wiki pages if not on the net.
 Mac Client has:
       Same GUI features as Linux client
 
@@ -68,7 +70,7 @@ Proof of principle!  Prototype on at least two platforms done!
 Third Set:
 ==========
 
-Rewrite linux and mac client components TDD
+Rewrite/refactor linux and mac client components TDD
 Write tests for server
 Package everything
 

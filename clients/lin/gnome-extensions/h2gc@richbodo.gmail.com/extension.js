@@ -133,7 +133,7 @@ CpuTemperature.prototype = {
         item = new PopupMenu.PopupMenuItem("Search");
         section.addMenuItem(item);
 	item.connect('activate', Lang.bind(this, this._doSearch));
-
+ 
         item = new PopupMenu.PopupMenuItem("Learn");
         section.addMenuItem(item);
 	item.connect('activate', Lang.bind(this, this._doLearn));
@@ -142,9 +142,13 @@ CpuTemperature.prototype = {
         section.addMenuItem(item);
 	item.connect('activate', Lang.bind(this, this._doCollaborate));
 
-        item = new PopupMenu.PopupMenuItem(_("Get Help"));
+        item = new PopupMenu.PopupMenuItem("Get Help");
         section.addMenuItem(item);
 	item.connect('activate', Lang.bind(this, this._doGetHelp));	
+
+        item = new PopupMenu.PopupMenuItem("Share an awesome new thing!");
+        section.addMenuItem(item);
+	item.connect('activate', Lang.bind(this, this._doShare));
 
 	// Add the preferences menu item
 	//
@@ -233,16 +237,46 @@ CpuTemperature.prototype = {
 
     _doCollaborate: function() {	
 	global.log("In Collaborate.");
-	// open private chatroom
-	//
+	
+        return true;    
+    },
+
+    _doShare: function() {	
+	global.log("In Share.");
+	
         return true;    
     },
 
     _doLearn: function() {	
 	global.log("In Learn.");
-	// open wiki
-	//
-        return true;    
+	var priority_text = ""
+
+	// the priority file should contain the name of the check that is most seriously troubling
+	// if the priority file is empty, well, I'm not sure what we should do.  maybe open to the default search 
+	let home_dir = GLib.get_home_dir()
+	let priority_file = home_dir + '/.h2gc/priority'
+
+	if (GLib.file_test(priority_file,1<<4)) {
+            let priority_object = GLib.file_get_contents(priority_file);
+            if(priority_object[0]) {
+		var priority_string = priority_object[1];
+		global.log("priority_string: ");
+		global.log(priority_string);
+		priority_text = priority_string; 
+            }	    
+	}	
+
+	if (priority_text == "") {
+	    let local_html = "file://" + home_dir + "/.h2gc/docs/" + "index.html" 
+	    global.log(local_html)
+            Gtk.show_uri(null, local_html, Gdk.CURRENT_TIME);
+            return true;
+        } else {
+	    let local_html = "file://" + home_dir + "/.h2gc/docs/" + priority_text + ".html" 
+	    global.log(local_html)
+            Gtk.show_uri(null, local_html, Gdk.CURRENT_TIME);
+            return true;
+	} 
     },
 
     _doGetHelp: function() {	
@@ -393,8 +427,11 @@ CpuTemperature.prototype = {
 	    return system_status_string;
 	}    
 
-	if ( status_number >= 1 ) {
-	    status_modifier = status_number.toString();
+	if ( status_number >= 10 ) {
+	    status_modifier = "OK";
+	    if ( status_number >=25 ) { status_modifier = "MINOR ISSUES"; }
+	    if ( status_number >=50 ) { status_modifier = "MAJOR ISSUES"; }
+            if ( status_number >=75 ) { status_modifier = "IMMEDIATE ACTION REQUIRED"; }
 	} else {
 	    status_modifier = "AWESOME";
 	}
