@@ -6,15 +6,17 @@
 #
 # Functionality:
 #
-#   StatusCheck.py runs all the status checkscripts in the /scripts directory
+#   StatusCheck.py runs all the status checkscripts in the ~/.h2gc/scripts/ directory
+#
 #   It summarizes the outcome of each checkscript, and writes summary data to files.
 #   (Currently writes into files in the ~/.h2gc directory.)
+#
 #   It also sends a status notification to the h2gc notifier application.
 #   Once that is done, it stops.  It allows the client GUI to read the summary data
 #   in, along with data from the /scripts directory and the web, informing the
 #   end user of the system status.
 #
-#   Files this program writes out (all in ~/.h2gc):
+#   Files this program writes out (all in ~/.h2gc/ at the moment):
 #
 #   priority - writes a single word containing the name of the check that is most concerning, if any
 #   sad - collected one-liner descriptions from all the system checks of issues outstanding 
@@ -71,11 +73,13 @@ def post_report(computer, status):
     except IOError, e:
         if hasattr(e, 'reason'):
             print 'We failed to reach a server.'
-            status.collective_sad_string += 'Reason: ', str(e.reason)
+            # TODO reset string instead of adding to string here if the current status is zero
+            # that goes for both cases
+            status.collective_sad_string += 'Error posting to server: ' + str(e.reason)
             status.overall += 2
         elif hasattr(e, 'code'):
             print 'The server couldn\'t fulfill the request.'
-            status.collective_sad_string += 'Error code: ', e.code
+            status.collective_sad_string = 'Error posting to server: ' + str(e.code)
             status.overall += 1 
     else:
         print "Successfully posted data."

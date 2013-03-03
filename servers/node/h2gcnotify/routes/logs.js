@@ -1,10 +1,13 @@
-var mongo = require('mongodb');
- 
+var sys = require('sys');
+var exec = require('child_process').exec;
+
+var mongo = require('mongodb'); 
 var Server = mongo.Server,
 Db = mongo.Db,
 BSON = mongo.BSONPure;
- 
 var server = new Server('localhost', 27017, {auto_reconnect: true});
+
+// Super simple - DB is logdb, collection is logs
 db = new Db('logdb', server);
 
 //
@@ -14,16 +17,16 @@ db = new Db('logdb', server);
 exports.homePage = function(req, res) {
     db.collection('logs', function(err, collection) {
 	// db.logs.find( { "status" : { $ne: "0" } } ) works
-	
+        // 
 	collection.find({ "status" : { $ne: "0" } } ).sort({datetime: 1}).limit(10).toArray(function(err, items) {
-	    res.render('index', { title:'H2GC', sidebartitle:'Problem Devices', loglines:items, probs:'example device' });	    
+	    res.render('index', { title:'H2GC', sidebartitle:'Recent Checkins', loglines:items });	    
 	});
     });
     
 };
 
 //
-// REST API functions
+//  REST API functions
 //
  
 exports.findById = function(req, res) {
@@ -64,8 +67,24 @@ exports.getHtmlPages = function(req, res) {
  
 exports.addLog = function(req, res) {
     var log = req.body;
-    console.log('Adding log: ' + JSON.stringify(log));
+    var logstringified = JSON.stringify(log);
+    var child;
+    console.log('Adding log: ' + logstringified);
     db.collection('logs', function(err, collection) {
+
+    // First integration test - uservoice
+    if ( log.status !== "0" ) {
+	console.log('non-zero, executing command.');
+	// executes `pwd`
+	child = exec("pwd", function (error, stdout, stderr) {
+	    sys.print('stdout: ' + stdout);
+	    sys.print('stderr: ' + stderr);
+	    if (error !== null) {
+		console.log('exec error: ' + error);
+	    }
+	});
+
+    }
 
 	collection.insert(log, {safe:true}, function(err, result) {
 	    if (err) {
@@ -75,9 +94,6 @@ exports.addLog = function(req, res) {
 		res.send(result[0]);
 	    }
 	});
-
-
-
 
     });
 }

@@ -26,13 +26,15 @@ app.configure(function () {
     app.use(express.static(__dirname + '/public'))
 });
 
-
-app.get('/', log.homePage); 
+// Can disable all except get/ and post/logs
+// need auth mechanisms
+//
+app.get('/', log.homePage); // admin view log
 app.get('/logs', log.findAll);
 app.get('/logs/:id', log.findById);
 app.get('/humanpages', log.getHtmlPages);
 app.get('/humanpages/:id', log.findPage);
-app.post('/logs', log.addLog);
+app.post('/logs', log.addLog); // client posts  log
 app.put('/logs/:id', log.updateLog);
 app.delete('/logs/:id', log.deleteLog);
 

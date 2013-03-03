@@ -25,7 +25,7 @@ Linux Client GUI has:
       Collaboration System Link that works
             * open browser to relevant chatroom or group collaboration page - DONE
       Help System Link that works
-      	    * ideally take the user to a local page that links to the appropriate wiki page, plus local log file and .teach files
+      	    * take the user to a local page that links to the appropriate wiki page, plus local log file and .teach files - DONE
 Linux Client Daemon has:
       Two working trivial system checks that it can run - DONE
       Write out status descriptions, overall status, top priority to files - DONE
