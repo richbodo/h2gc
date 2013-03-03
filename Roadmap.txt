@@ -94,5 +94,5 @@ Package everything
 Later:
 ======
 
-Android and iOS clients
+Android and iOS clients, etc.
 
