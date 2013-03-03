@@ -146,7 +146,7 @@ CpuTemperature.prototype = {
         section.addMenuItem(item);
 	item.connect('activate', Lang.bind(this, this._doGetHelp));	
 
-        item = new PopupMenu.PopupMenuItem("Share an awesome new thing!");
+        item = new PopupMenu.PopupMenuItem("Share");
         section.addMenuItem(item);
 	item.connect('activate', Lang.bind(this, this._doShare));
 
@@ -239,6 +239,7 @@ CpuTemperature.prototype = {
 	global.log("In Collaborate.");
 	// could go to a specific chatroom for specific problems, but I think that's overkill for most orgs
 	// if it were an external chatroom, like irc or something, then I can see doing that.
+	// should be configurable
 	let chatroom = "https://kungfuvrobots.hipchat.com/chat"
 	global.log(chatroom)
         Gtk.show_uri(null, chatroom, Gdk.CURRENT_TIME);
@@ -246,8 +247,12 @@ CpuTemperature.prototype = {
     },
 
     _doShare: function() {	
-	global.log("In Share.");
-	
+	global.log("In Share");
+	// compile basic system information, what's running, etc.
+	// ask user what's new, then post all of that to a new wiki page
+	// post the link to the wiki page that juts got made to whatever social network they prefer
+	// as in the android share feature.
+	// really large function that I haven't had time to write.
         return true;    
     },
 
@@ -285,9 +290,12 @@ CpuTemperature.prototype = {
 
     _doGetHelp: function() {	
 	// Write debug summary to file
-	// Send a ticket to the support system
+	// Open a web browser and form an email with an attachment of debug info
+	// For now just going here: http://kungfuvrobots.uservoice.com/forums/196593-general/
 	global.log("In Get Help.");
-	
+	let helpdesk = "http://kungfuvrobots.uservoice.com/forums/196593-general/"
+	global.log(helpdesk)
+        Gtk.show_uri(null, helpdesk, Gdk.CURRENT_TIME);
         return true;    
     },
 

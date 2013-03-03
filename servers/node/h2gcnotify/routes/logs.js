@@ -75,8 +75,8 @@ exports.addLog = function(req, res) {
     // First integration test - uservoice
     if ( log.status !== "0" ) {
 	console.log('non-zero, executing command.');
-	// executes `pwd`
-	child = exec("pwd", function (error, stdout, stderr) {
+	// uservoice api key is not enabled yet so just sending email
+	child = exec("./integrations/send_gmail.py", function (error, stdout, stderr) {
 	    sys.print('stdout: ' + stdout);
 	    sys.print('stderr: ' + stderr);
 	    if (error !== null) {

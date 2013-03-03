@@ -31,9 +31,9 @@ Linux Client Daemon has:
       Write out status descriptions, overall status, top priority to files - DONE
 Server has:
       Rest server accepts posts from clients of ID and status - DONE
-      Rest server notifies ticket system immediately if device status is 1
+      Rest server notifies ticket system immediately if device status is 1 - DONE
       	   * At same time as insert to db 
-      Crappy interface for viewing logs - but most recent first
+      Crappy interface for viewing logs - but most recent first - DONE
       	   * update log Document to: DeviceID, Status, Timestamp and user Document to: Name, Email, DeviceID
 	   * View page with most recent first
 Mac Client has:
@@ -68,6 +68,8 @@ Server has:
 Linux Client Daemon has:
       Wizard for checkscript creation
       Sends client key instead of test data
+      Creates social_summary for share feature
+      Creates support_summary for get help feature
 Linux GUI has:
       Local copies of external wiki pages if not on the net.
 Mac Client has:
@@ -91,8 +93,7 @@ Rewrite/refactor linux and mac client components TDD
 Write tests for server
 Package everything
 
-Later:
-======
-
-Android and iOS clients, etc.
+Fourth Set and Beyond:
+======================
+Android, iOS clients, glass clients, etc.
 
