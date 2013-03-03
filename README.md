@@ -13,12 +13,12 @@ A client app is installed on the device to be monitored.  It has a graphical par
 
 The manifestation of the client GUI is a single icon or text button, prominently displayed, notifying the user of any problems with their computer.  If there is a problem, the icon can be clicked on, and a one-sentence plain english summary of the problem will appear along with the following menu:
 
-Search - Read about the specific problem that has occurred via search engines
-Learn - Learn about the problem from the resources that the person who wrote the test recommends
-Collaborate - Pop into a chatroom with people who are working on similar issues
-Get Help - Send an email with diagnostic information to your preferred expert person
-Share - Create a page online with information about your awesome setup, and compose a message about it to share on social nets.
-Change Stuff - Configure H2GC, learn to write tests yourself to know when things change online or on your computer.
+* Search - Read about the specific problem that has occurred via search engines
+* Learn - Learn about the problem from the resources that the person who wrote the test recommends
+* Collaborate - Pop into a chatroom with people who are working on similar issues
+* Get Help - Send an email with diagnostic information to your preferred expert person
+* Share - Create a page online with information about your awesome setup, and compose a message about it to share on social nets.
+* Change Stuff - Configure H2GC, learn to write tests yourself to know when things change online or on your computer.
 
 As mentioned, the client app also comes with a background process to perform a bunch of system checks, which update the client GUI.  That background process is called the "client daemon".
 
