@@ -39,6 +39,8 @@ import sys
 import traceback
 import subprocess
 import re
+import datetime
+import time
 import StringIO
 import json
 import urllib2
@@ -59,8 +61,9 @@ class Status:
 #
 def post_report(computer, status):
     url = "http://localhost:3000/logs"
+    now = datetime.datetime.now()
 
-    data = json.dumps({"computer": str(computer), "status": str(status.overall)})
+    data = json.dumps({"device": str(computer), "status": str(status.overall), "datetime": str(now)})
     req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
 
     try:

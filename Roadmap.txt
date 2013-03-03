@@ -43,9 +43,9 @@ Mac Client has:
 Bonus Milestones: (these are all just test/demo infrastructure)
 =================
 
-Ticket System has: (http://uservoice.com)
+Ticket System has: (http://uservoice.com - https://developer.uservoice.com/docs/api/python-sdk/)
       Existence
-	    * Google Apps creates a ticket when an email is sent its way.
+	    * Recieves tickets in some way from the H2GC server.
 Monitoring System has: (local virt running nagios for now) 
       Existence 
 	    * Nagios can RCV an alert from a the H2GC server 

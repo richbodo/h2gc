@@ -13,8 +13,10 @@ db = new Db('logdb', server);
 
 exports.homePage = function(req, res) {
     db.collection('logs', function(err, collection) {
-	collection.find().toArray(function(err, items) {
-	    res.render('index', { title:'H2GC', sidebartitle:'Recent Problem Machines', loglines:items, probs:'example' });	    
+	// db.logs.find( { "status" : { $ne: "0" } } ) works
+	
+	collection.find({ "status" : { $ne: "0" } } ).sort({datetime: 1}).limit(10).toArray(function(err, items) {
+	    res.render('index', { title:'H2GC', sidebartitle:'Problem Devices', loglines:items, probs:'example device' });	    
 	});
     });
     
@@ -64,7 +66,6 @@ exports.addLog = function(req, res) {
     var log = req.body;
     console.log('Adding log: ' + JSON.stringify(log));
     db.collection('logs', function(err, collection) {
-
 
 	collection.insert(log, {safe:true}, function(err, result) {
 	    if (err) {
@@ -134,13 +135,13 @@ db.open(function(err, db) {
 var populateDB = function() {
     var logs = [
 	{
-	    computer: "asfasdfsadfasf",
-	    status: "0"
+	    device: "asfasdfsadfasf",
+	    status: "0",
 	    datetime: "124312432134"
 	},
 	{
-	    computer: "qerqwerwqreqwerqre",
-	    status: "0"
+	    device: "qerqwerwqreqwerqre",
+	    status: "0",
 	    datetime: "3653464563"
 	}];
 

@@ -1,14 +1,15 @@
 extend layout
 block content
-  h1 Recent Checkins
+  h1 Problem Devices
   p
     - each logline in loglines
       div.logline
-        div.computer= logline.computer
+        div.device= logline.device
         div.status= logline.status
+        div.datetime= logline.datetime
 
 block sidebar
   .widget
     h1= sidebartitle
     p    
-      | grandma@example.com 
+      #{probs}
