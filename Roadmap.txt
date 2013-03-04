@@ -4,7 +4,7 @@ Status
 
 Very hacky prototype.
 
-Client GUI currently only works on Rich's laptop - Gnome-shell extension on Ubuntu 12.10 minus evil plus more gnome.
+Client GUI currently only works on Rich's laptop - a Gnome-shell extension on Ubuntu 12.10 minus evil plus more gnome.
 Client Daemon is written in python and should be easy to port to osx winxx.
 Notification server currently only runs on Node.js
 
@@ -96,4 +96,11 @@ Package everything
 Fourth Set and Beyond:
 ======================
 Android, iOS clients, glass clients, etc.
+Node server logic for determining ticket severity and priority.
 
+Integrations to do:
+===================
+Email - DONE
+      * needs work, but basically have a mechanism
+Uservoice
+Pagerduty
