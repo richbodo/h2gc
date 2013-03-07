@@ -7,8 +7,18 @@ from email.MIMEText import MIMEText
 from email import Encoders
 import os
 
-gmail_user = "ahewes@kungfuvrobots.com"
-gmail_pwd = "uniquetoahewes"
+def mail_pwd(pwd_file):
+   try: 
+      pf_handle = open(pwd_file,'r')
+   except:
+      print "can't open send_gmail config file"
+   try:
+      pstring=readline(pf_handle)
+   except:
+      print "can't read from send_gmail config file"
+   close(pf_handle)
+   return pstring
+
 
 def mail(to, subject, text, attach):
    msg = MIMEMultipart()
@@ -35,6 +45,14 @@ def mail(to, subject, text, attach):
    # Should be mailServer.quit(), but that crashes...
    mailServer.close()
 
+
+gmail_user = "ahewes@kungfuvrobots.com"
+home_dir = os.path.expanduser("~") + "/.h2gc/"
+pwd_file = home_dir + "integrations/sendgmail"
+gmail_pwd = mail_pwd()
+if (gmail_pwd == ""):
+   print "You have to initialize the send_gmail integration by dropping a password in: " + pwd_file 
+   exit(1)
 mail("support@kungfuvrobots.com",
    "One more test",
    "Only used for this demo",

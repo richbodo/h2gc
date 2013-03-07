@@ -7,11 +7,15 @@ The HitchHikers Guide to your Computer (H2GC) is a program that aims to give ord
 
 Any user of the H2GC can use a super-simple interface to learn about their computer, collaborate with others, and contact knowledgable people.  
 
-What does H2GC look like?  
+What does it look like?  
 
 A client app is installed on the device to be monitored.  It has a graphical part (GUI) and a background process part. 
 
-The manifestation of the client GUI is a single icon or text button, prominently displayed, notifying the user of any problems with their computer.  If there is a problem, the icon can be clicked on, and a one-sentence plain english summary of the problem will appear along with the following menu:
+The graphical part is a single icon or text button, prominently displayed only when needed, notifying the user of any problems with their computer.  
+
+If there is a problem, the icon can be clicked on, and a one-sentence plain english summary of the problem will appear.  
+
+Along with the explanation, the user can select any of the following actions from a menu:
 
 * Search - Read about the specific problem that has occurred via search engines
 * Learn - Learn about the problem from the resources that the person who wrote the test recommends
@@ -19,6 +23,13 @@ The manifestation of the client GUI is a single icon or text button, prominently
 * Get Help - Send an email with diagnostic information to your preferred expert person
 * Share - Create a page online with information about your awesome setup, and compose a message about it to share on social nets.
 * Change Stuff - Configure H2GC, learn to write tests yourself to know when things change online or on your computer.
+
+What H2GC is NOT:
+
+* Clippy (that annoying paperclip in some old versions of ms windows)
+  H2GC exposes only what information you want exposed, in a secure manner, to you and to your IT person(s).
+* A helpdesk system, central monitoring system, software update system, or virus checker.  
+  H2GC is more powerful when used with those systems, but does not rely on or replace them.
 
 As mentioned, the client app also comes with a background process to perform a bunch of system checks, which update the client GUI.  That background process is called the "client daemon".
 

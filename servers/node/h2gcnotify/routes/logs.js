@@ -76,7 +76,8 @@ exports.addLog = function(req, res) {
     if ( log.status !== "0" ) {
 	console.log('non-zero, executing command.');
 	// uservoice api key is not enabled yet so just sending email
-	child = exec("./integrations/send_gmail.py", function (error, stdout, stderr) {
+	// fixup the home dir, add server config
+	child = exec("/home/richbodo/integrations/send_gmail.py", function (error, stdout, stderr) {
 	    sys.print('stdout: ' + stdout);
 	    sys.print('stderr: ' + stderr);
 	    if (error !== null) {

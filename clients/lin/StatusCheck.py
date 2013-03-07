@@ -72,15 +72,21 @@ def post_report(computer, status):
         f = urllib2.urlopen(req)
     except IOError, e:
         if hasattr(e, 'reason'):
-            print 'We failed to reach a server.'
-            # TODO reset string instead of adding to string here if the current status is zero
-            # that goes for both cases
-            status.collective_sad_string += 'Error posting to server: ' + str(e.reason)
-            status.overall += 2
+            problem = " We probably aren't online."
+            logstring = "Failed to reach notificaion server:" + str(e.reason)
+            if (status.top_priority == ""):
+                status.collective_sad_string = problem
+            else:
+                status.collective_sad_string += problem 
+            status.overall += 1
         elif hasattr(e, 'code'):
-            print 'The server couldn\'t fulfill the request.'
-            status.collective_sad_string = 'Error posting to server: ' + str(e.code)
-            status.overall += 1 
+            problem = " The notification server probably isn't talking to us"
+            logstring = 'Error posting to notification server: ' + str(e.code)
+            if (status.top_priority == ""):
+                status.collective_sad_string = problem
+            else:
+                status.collective_sad_string += problem 
+            status.overall += 2 
     else:
         print "Successfully posted data."
         response = f.read()
@@ -238,7 +244,6 @@ def main():
     priority_file = "priority"
     full_priority = config_dir + priority_file
     
-
     if (os.path.isdir(config_dir) != True):
         print "Config directory does not exist.  First run assumed.  Creating.  Initializing file."
         os.makedirs(config_dir, mode=0700)

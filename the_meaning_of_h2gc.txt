@@ -5,13 +5,13 @@ Organizations depend on networks of mostly mobile computing systems operated mos
 
 It is almost impossible to stop a motivated person from bringing their own computing systems to an organization, whether mobile devices or external services.  This accellerating trend increases the day-to-day efficiency and happiness of users.  There is no need to discourage it.
 
-The problem with adding things to a complex system is that it decreases our overall understanding of the system.  (increased complexity and decreased transparency).  We need understanding not only to keep up, but to accellerate.
+One problem with adding things to a complex system is that it decreases our overall understanding of the system.  (increased complexity and decreased transparency).  This can be alleviated significantly when adding tests and documentation before adding functionality.
 
 Current research and common sense suggest that in order to minimize failures in a complex system, all members of an organization must be empowered to understand what a failure is, take charge of their own systems, and contribute to the overall performance of the system. [1]
 
 H2GC is designed to help people do that.
 
-There are a lot of other reasons we can give for H2GC - transparent, high quality debug information shifts tickest from emergency to preventative maintenance mode, etc.
+There are a lot of other reasons we can give for H2GC - transparent, high quality debug information shifts tickest from emergency to preventative maintenance mode, etc. 
 
 H2GC is also kind of fun to work on and gives a good overview of a lot of different platforms and technologies.  So even if I'm wrong about all that other stuff I'm going to keep working on it.  But I'm not wrong.  Prove it to me and I still won't believe it!
 
