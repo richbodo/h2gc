@@ -16,6 +16,9 @@ import re
 import StringIO
 import json
 import urllib2
+from time import sleep
+import socket
+from scapy.all import *
 
 class Status:
     def __init__(self):
@@ -31,6 +34,13 @@ class NetworkDevice:
     def __str__(self):        
         return ("Network Device Stuff\n")	
 
+# Report header
+def report_header(name):
+    print ""
+    print " ------------------------------------------------------------"
+    print " ----- " + name + " SECTION "
+    print " ------------------------------------------------------------"
+
 # bash_wrapper - run a bash command 
 #
 def bash_wrapper(full_executable_path):
@@ -44,72 +54,121 @@ def bash_wrapper(full_executable_path):
     print "returncode: ", returncode
     return returncode
 
-# lifted byzantium config code to get wifi int data to see how I like it
-# GPL v3 just like my stuff
+# id_dhcp - identify dhcp server and check for rogues
+# uses scapy
 #
-def get_wifi_config_byzantium():
-    wireless = []
-    # Enumerate all network interfaces and pick out only the wireless ones.
-    # Ignore the rest.
-    interfaces = os.listdir('/sys/class/net')
+def id_dhcp():
+    conf.checkIPaddr = False
+    fam,hw = get_if_raw_hwaddr(conf.iface)
+    dhcp_discover = Ether(dst="ff:ff:ff:ff:ff:ff")/IP(src="0.0.0.0",dst="255.255.255.255")/UDP(sport=68,dport=67)/BOOTP(chaddr=hw)/DHCP(options=[("message-type","discover"),"end"])
+    ans, unans = srp(dhcp_discover, multi=True, timeout=10)
+    for p in ans: print p[1][Ether].src, p[1][IP].src
+    n = len(ans)
+    if (n == 0):
+        print "no dhcp servers found"
+    elif (n == 1):
+        print "one and only one dhcp server o.k."
+    elif (n > 1):
+        print "more than one dhcp server - problem."
 
+# id_gateway
+#
+def id_gateway():
+    routecmd = "route -n"
+    bash_wrapper(routecmd)
+    
+# id_net_devs
+#
+# it's a good bet that the /sys/class/net directory is going to be the best place to get data
+# however, getting some data from iwlist and ifconfig as well right at the moment, should probably change that
+# need to read man netdevice
+# looks like when the interface is up, carrier should show the link status.
+# might use scapy
+#
+# depends on: iwconfig  Wireless-Tools version 30 - Compatible with Wireless Extension v11 to v22.
+#
+# based on: byzantium GPLV3 stuff
+#
+def id_net_devs():
+    # Report interesting info on network interfaces
+    wireless = []
+    interfaces = os.listdir('/sys/class/net')
     # Remove the loopback interface because that's our failure case.
     if 'lo' in interfaces:
         interfaces.remove('lo')
     if not interfaces:
-        print "ERROR: No wireless interfaces found.  Terminating."
-        sys.exit(1)
-
-    # For each network interface's pseudofile in /sys, test to see if a
-    # subdirectory 'wireless/' exists.  Use this to sort the list of
-    # interfaces into wired and wireless.
+        print "ERROR: No network interfaces found."
     for i in interfaces:
+        print ""
+        print "--------------------"
+        print "Interface: " + str(i)
         if os.path.isdir("/sys/class/net/%s/wireless" % i):
             wireless.append(i)
+            print "type: WIFI "
+        f = open("/sys/class/net/%s/operstate" % i)
+        state = f.read()
+        print state
+        # Only try to read carrier if operstate is up
+        if ("up" in state):
+            f = open("/sys/class/net/%s/carrier" % i)
+            carrier = f.read()
+            print "carrier/link state: " + carrier
 
-    print "wifi interfaces: " + str(len(wireless))
-    if len(wireless):
+        print "Get quick and dirty stats with: "
+        print "grep \"\" /sys/class/net/%s/*" % i
+        print "grep \"\" /sys/class/net/%s/power/*" % i
+        print "grep \"\" /sys/class/net/%s/statistics/*" % i
+        
+
+    for wifi_interface in wireless:
         # Capture the interface's current settings.
-        command = ['/sbin/iwconfig', interface]
+        command = ['/sbin/iwconfig', wifi_interface]
         configuration = ''
         output = subprocess.Popen(command, stdout=subprocess.PIPE).stdout
         configuration = output.readlines()
-
-        # Test the interface's current configuration.  Go back to the top of
-        # the configuration loop and try again if it's not what we expect.
-        Mode = False
-        Essid = False
-        Bssid = False
-        Frequency = False
         for line in configuration:
-            # Ad-hoc mode?
-            modematch = re.search('Mode:([\w-]+)', line)
-            if modematch and modematch.group(1) == 'Ad-Hoc':
-                print "Mode is correct."
-                Mode = True
-
-            # Correct ESSID?
-            essidmatch = re.search('ESSID:"([\w]+)"', line)
-            if essidmatch and essidmatch.group(1) == essid:
-                print "ESSID is correct."
-                Essid = True
-
-            # Correct BSSID?
-            bssidmatch = re.search('Cell: (([\dA-F][\dA-F]:){5}[\dA-F][\dA-F])', line)
-            if bssidmatch and bssidmatch.group(1) == bssid:
-                print "BSSID is correct."
-                Bssid = True
-
-            # Correct frequency (because iwconfig doesn't report channels)?
-            freqmatch = re.search('Frequency:([\d.]+)', line)
-            if freqmatch and freqmatch.group(1) == frequency:
-                print "Channel is correct."
-                Frequency = True
-
-            print "Mode, Essid, Bssid, Freq:" + modematch + essidmatch + bssidmatch + freqmatch 
-        else:
-            print "no wifi stuff"
-
+            # For wifi ints - print out the mode, essid, bssid, channel/freq
+            match = re.search('Mode:([\w-]+)', line)
+            if match:
+                print "Mode: " + match.group(1)
+            match = re.search('ESSID:([\w-]+)', line)
+            if match:
+                print "ESSID: " + match.group(1)
+            match = re.search('Cell: (([\dA-F][\dA-F]:){5}[\dA-F][\dA-F])', line)
+            if match:
+                print "BSSID: " + match.group(1)
+            match = re.search('Frequency:([\d.]+)', line)
+            if match:
+                print "Frequency: " + match.group(1)
+# id_dns
+#
+# scapy example from: http://www.secdev.org/projects/scapy/doc/usage.html
+# sr1(IP(dst="192.168.5.1")/UDP()/DNS(rd=1,qd=DNSQR(qname="www.slashdot.org")))
+#
+def id_dns():
+    # host='localhost'
+    # port=53
+    # addr_list=(host,port)
+    # buf_siz=1024
+    # udp=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+    # udp.bind(addr_list)
+    # while True:
+    #     print 'WAITING FOR CONNECTION.........'
+    #     data,addr = udp.recvfrom(buf_siz)
+    #     print '.........recieved from : ',addr
+    #     sleep(3)
+    #     #Decode the DNS data   
+    #     decoded = DNS(data)
+    #     #Print the decoded packet                                                                                                
+    #     decoded.show()
+    showdns = "cat /etc/resolv.conf"
+    digfwd = "dig @8.8.8.8 www.google.com"
+    digrev = "dig @8.8.4.4-x 209.81.9.1"
+    bash_wrapper(showdns)
+    bash_wrapper(digfwd)
+    bash_wrapper(digrev)
+    
+    
 # Check the status of network devices
 #
 # modifies: network list
@@ -127,25 +186,33 @@ def check_network_status(network_list):
         # If any of those are not a yes, debug
  
     # Some testing stuff      
-    
-    get_wifi_config_byzantium()
-    # Check out our routing table
-    routecmd = "route -n"
     # Enumerate network devices
-    ifcmd = "ifconfig"
-    # See what's associted with what
-    iwlstcmd = "iwlist scan"
-    # Check well known internet sites
-    # seems slow - this mtr for five packets takes about 20 seconds on my laptop
-    mtrcmd = "mtr -r -c 5 www.google.com"
-    # Check download speeds
-    wgetcmd = "wget -O /dev/null - http://cachefly.cachefly.net/10mb.test"
+    report_header("LOCAL DEVICES")
+    id_net_devs()
+    # Display routing table, identify gateway
+    report_header("GATEWAYS")
+    id_gateway()
+    # Check for rogue dhcp servers
+    report_header("ADDRESSES")
+    id_dhcp()
+    # Check dns
+    report_header("NAME SERVICES")
+    id_dns()
 
-    bash_wrapper(routecmd)
-    bash_wrapper(ifcmd)
+    # See what's the wifi quality is
+    report_header("WIFI QUALITY")
+    iwlstcmd = "sudo iwlist scan"
     bash_wrapper(iwlstcmd)
+    # Check icmp echo reply path to a well known site
+    # seems slow - this mtr for five packets takes about 20 seconds on my laptop
+    report_header("PATH TO GOOGLE")
+    mtrcmd = "mtr -r -c 5 www.google.com"
     bash_wrapper(mtrcmd)
+    # Check download speeds
+    report_header("DOWNLOAD PERFORMANCE")
+    wgetcmd = "wget -O /dev/null - http://cachefly.cachefly.net/10mb.test"
     bash_wrapper(wgetcmd)
+
     result = 0
 
 # Log the analysis of net devices to local log file
