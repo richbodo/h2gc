@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-# storage_checks.py - module to contain storage checks for **Linux** client
+# storage_checks.py - module to contain storage checks for h2gc **Linux** client
+#
 # Status: Some of the actual storage checking stuff I want is here, needs tests and more checks 
+#     Useful as a standalone test
 #
 # Preconditions: should be in scripts directory of h2gc client system
 # Postconditions: 

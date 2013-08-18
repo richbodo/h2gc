@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+
+# example.check - boilerplate for a python h2gc **Linux** client
+#
+# Status: Just whittled this down so I can see how to eliminate it.
+#    
+# Preconditions: should be in scripts directory of h2gc client system
+# Postconditions: 
+#     Returns 0 on no error, 1-100 on problem found, by severity.  
+#     Error notes > .sad, Log >> .log
+#
+
+import os
+import subprocess
+import re
+import StringIO
+import json
+import urllib2
+
+class Status:
+    def __init__(self):
+        self.overall = 0  
+        self.sad = "Positive default status explanation."
+    def __str__(self):
+        return ("Overall Status: " + str(self.overall) + "\n"
+                "Current Evaluation of Issues: " + str(self.sad) + "\n")
+
+class ExampleDevice:
+    def __init__(self):
+        self.foo = "bar"
+    def __str__(self):        
+        return ("Example Device Stuff\n")	
+
+# Check the status of example devices
+#
+# modifies: example list
+#
+def check_example_status(example_list):
+    # Code to check example status goes here
+    result = 0
+
+# Log the analysis of example things to local log file
+#
+# modifies: status object
+#
+def log_example_data(net_ob_list, status):
+    result = 0
+    # Code to calculate simplified overall result goes here
+    status.overall += result
+
+# 
+# main
+#
+def main():
+    status=Status()
+    example_list=[] 
+    config_dir = os.path.expanduser("~") + "/.h2gc/scripts/"
+
+    config_file = "example.conf"
+    full_config_path = config_dir + config_file
+    sad_file = "example.sad"
+    full_sad_path = config_dir + sad_file
+ 
+    check_example_status(example_list)
+    log_example_data(example_list, status) 
+ 
+    # Nothing should change the status after this point
+    # Write overall status to file, blowing away other contents
+    #
+    sad_handle = open(full_sad_path, 'w+')    
+    sad_handle.write(str(status.sad))
+    sad_handle.close()
+
+    return status.overall
+
+if __name__ == '__main__':
+    main()
