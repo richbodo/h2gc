@@ -163,7 +163,7 @@ def id_dns():
     #     decoded.show()
     showdns = "cat /etc/resolv.conf"
     digfwd = "dig @8.8.8.8 www.google.com"
-    digrev = "dig @8.8.4.4-x 209.81.9.1"
+    digrev = "dig @8.8.4.4 209.81.9.1"
     bash_wrapper(showdns)
     bash_wrapper(digfwd)
     bash_wrapper(digrev)
