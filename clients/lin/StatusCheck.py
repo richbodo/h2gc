@@ -245,8 +245,12 @@ def main():
     full_priority = config_dir + priority_file
     
     if (os.path.isdir(config_dir) != True):
-        print "Config directory does not exist.  First run assumed.  Creating.  Initializing file."
+        print "Config directory does not exist.  First run assumed.  Creating."
         os.makedirs(config_dir, mode=0700)
+    if (os.path.isfile(full_config) != True):
+        print "Config file does not exist.  Creating."
+        config_handle = open(full_config, 'w+') 
+        config_handle.close()
     
     # Open, read entire config file in, close
     #    
