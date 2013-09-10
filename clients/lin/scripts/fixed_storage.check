@@ -181,6 +181,8 @@ def main():
     sad_handle.close()
 
     return status.overall
+    
+print "value of overall status:" status.overall
 
 if __name__ == '__main__':
     main()
