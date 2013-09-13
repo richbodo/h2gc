@@ -48,15 +48,15 @@ import json
 import urllib2
 import ConfigParser  
 
-# class Status:
-#     def __init__(self):
-#         self.overall = 0
-#         self.collective_sad_string = ""
-#         self.top_priority = ""
-#     def __str__(self):
-#         return ("Overall System Status: " + str(self.overall) + "\n"
-#                 "Current Evaluation of Issues: " + str(self.collective_sad_string) + "\n"
-#                 "Top priority: " + str(self.top_priority))
+class Status:
+    def __init__(self):
+        self.overall = 0
+        self.collective_sad_string = ""
+        self.top_priority = ""
+    def __str__(self):
+        return ("Overall System Status: " + str(self.overall) + "\n"
+                "Current Evaluation of Issues: " + str(self.collective_sad_string) + "\n"
+                "Top priority: " + str(self.top_priority))
 
 # POST log entry to server
 # modifies: status object
