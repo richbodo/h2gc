@@ -117,7 +117,7 @@ def init_config_file(parser, config_handle):
         parser.add_section('Placeholder')
         foo = "bar"
         parser.set('Placeholder', 'foo', foo)
-        #pdb.set_trace()
+        pdb.set_trace()
         parser.write(config_handle)
     except:
         print "Could not initialize parser."
@@ -127,7 +127,8 @@ def init_config_file(parser, config_handle):
     
 # Get the config file data into a configparser object
 # returns: a configparser object handle or 1 on error
-#
+# BUGBUG - this makes no sense - should be called get_config_or_init if that's what it does
+# The config file handling flow needs to be worked out on paper and then implemented.
 def get_config(config_handle, full_config):
 
     parser = ConfigParser.SafeConfigParser()
@@ -245,15 +246,19 @@ def main():
     full_priority = config_dir + priority_file
     
     if (os.path.isdir(config_dir) != True):
-        print "Config directory does not exist.  First run assumed.  Creating."
+        print "Config directory does not exist.  First run assumed.  Creating directory."
         os.makedirs(config_dir, mode=0700)
     if (os.path.isfile(full_config) != True):
-        print "Config file does not exist.  Creating."
+        print "Config file does not exist.  Creating config file."
         config_handle = open(full_config, 'w+') 
         config_handle.close()
     
     # Open, read entire config file in, close
-    #    
+    #
+    # BUGBUG - the bug here is that we correctly open this file for reading, but then in get_config, we check to see if this file has some data in it, and if not, we try to write some data to it
+    # but it is only open for reading!
+    # In the conditionals above, we create the config file.  We should write data to the config file at that time, if that's how  we want to initialize it.
+    #
     config_handle = open(full_config, 'r') 
     print "opened full_config"
     config_p = get_config(config_handle, full_config)
