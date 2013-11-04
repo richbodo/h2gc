@@ -1,0 +1,52 @@
+
+Lots more to H2GC if it's mobile:
+
+----------
+Peer-peer monitoring
+----------
+
+This could be a peer-peer monitoring system - everyone collaboratively gets reports on the health of the network.  You only get reports on other stuff if you are in groups.
+
+This is especially fun because you can write it as anything that works to send http data via the api of the peer-peer network.  Getting disparate devices to participiate is an interesting thing.
+
+I should write the client daemon and tests first as a monitoring package that reports on a single web page the status of the system, as well as the status of the network.
+
+The script would run on mac/win/lin/android, and on a raspberry pi.
+
+This script, installed on as many client systems as necessary, makes a nice client monitoring system.
+
+It also, in combination with Rpis, makes it easy to keep persistent logs of wifi status, or switch ports and/or/and/or whatever they have sensors for.
+
+----------
+Various crowdsourced data maps
+----------
+
+Overlay group data on various crowdsourced network status maps out there.  Interesting to compare the status of the local net with that of larger nets.
+
+----------
+Group wifi alerting
+----------
+
+Everyones android phone runs H2GC.  It evaluates the status of the net and feeds that data back to the group.  They see it on a map, and an alert goes out to the group when issues arise.  
+
+Android is perfect for this because when the wifi is down, you often still have cellular data, so alerts go through anyway.
+
+----------
+Peer-peer security
+----------
+
+This is hard, but if we can make phones spoof MACs and other identifying data, or not report it.
+
+Phone MAC addresses are harvested: https://www.schneier.com/blog/archives/2013/11/close-in_survei.html
+
+----------
+Peer-peer network healing
+----------
+
+If you are near a member of your group that doesn't have net access, you could automatically config as an Wifi AP for that person, bridging them onto 3G.
+
+Phones in the future should be able to mesh with other phones to provide self-healing ability over wifi.
+
+It might be possible to set up some phones as a WiFi repeater.  It is certainly possible to add a second wifi card to many devices (maybe not phones) and create a repeater or bridge.
+
+Perhaps project byzantium would be interested in this.
