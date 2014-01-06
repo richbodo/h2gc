@@ -47,6 +47,7 @@ import StringIO
 import json
 import urllib2
 import ConfigParser  
+import distutils.core
 
 class Status:
     def __init__(self):
@@ -110,41 +111,44 @@ def log_storage_data(sd_ob_list, status):
     status.overall += result
 
 # Create the minimum config file that will work if none exists
+# Writes into section "Placeholder", item "config_test"
+# Returns 1 on error, or a parser handle on success
 #
 #
-def init_config_file(parser, config_handle):
+def init_config(full_config):
+
+    config_handle = open(full_config, 'w')
+    parser = ConfigParser.SafeConfigParser()
+
     try:
         parser.add_section('Placeholder')
-        foo = "bar"
-        parser.set('Placeholder', 'foo', foo)
-        pdb.set_trace()
+        test_item = "possibly_valid_data"
+        parser.set('Placeholder', 'config_test', test_item)
         parser.write(config_handle)
     except:
         print "Could not initialize parser."
         return 1
 
+    config_handle.close()
     return parser
     
 # Get the config file data into a configparser object
+# Checks section "Placeholder" for existence of item "config_test"
 # returns: a configparser object handle or 1 on error
-# BUGBUG - this makes no sense - should be called get_config_or_init if that's what it does
-# The config file handling flow needs to be worked out on paper and then implemented.
+#
 def get_config(config_handle, full_config):
-
-    parser = ConfigParser.SafeConfigParser()
-    
+    parser = ConfigParser.SafeConfigParser()    
     try:
         parser.read(full_config)
     except ConfigParser.ParsingError, err:
         print "Can't read from config file at all."
         return 1
-
     try: 
-        stuff = parser.get('Placeholder', 'foo', 0)
+        stuff = parser.get('Placeholder', 'config_test', 0)
     except:
-        print "Didn't find the placeholder/foo section or something like that.  Creating new sections."     
-        return init_config_file(parser, config_handle)
-        
+        print "Config file present but not complete.  Didn't find the placeholder/config_test item."     
+        return 1
+
     return parser
 
 # Logging method for Status Check runs
@@ -230,6 +234,7 @@ def run_all_checks(scripts_dir, status):
 #
 def main():
     status=Status()
+
     config_dir = os.path.expanduser("~") + "/.h2gc/"
     scripts_dir = config_dir + "scripts/"
 
@@ -245,30 +250,50 @@ def main():
     priority_file = "priority"
     full_priority = config_dir + priority_file
     
+
+    ####################################################
+    # Initial config file stuff - need to redo this at some point
+    #
     if (os.path.isdir(config_dir) != True):
         print "Config directory does not exist.  First run assumed.  Creating directory."
         os.makedirs(config_dir, mode=0700)
     if (os.path.isfile(full_config) != True):
         print "Config file does not exist.  Creating config file."
-        config_handle = open(full_config, 'w+') 
-        config_handle.close()
-    
-    # Open, read entire config file in, close
-    #
-    # BUGBUG - the bug here is that we correctly open this file for reading, but then in get_config, we check to see if this file has some data in it, and if not, we try to write some data to it
-    # but it is only open for reading!
-    # In the conditionals above, we create the config file.  We should write data to the config file at that time, if that's how  we want to initialize it.
+        if (init_config(full_config) == 1):
+            print "Config file creation error.  Check to see that you have permission to write to: " + full_config
+        
+    # Open, read entire config file in, close, set config_p to 1 on corrupt config or to the config parser handle if config is good
     #
     config_handle = open(full_config, 'r') 
     print "opened full_config"
     config_p = get_config(config_handle, full_config)
+
+    # What to do if config file is corrupt
+    if config_p == 1:
+        # ask if they want a new one
+        print "Would you like to re-initialize the config file? (y/n)"
+        yn = raw_input().lower()
+        if distutils.util.strtobool(yn):
+            # if yes, create a new config file
+            config_p = init_config(full_config) 
+            if (config_p == 1):
+                print "Config file creation error.  Check to see that you have permission to write to: " + full_config
+            else:
+                config_p = get_config(config_handle, full_config)
+        else:
+            # if they want to work with the corrupt file, obey for now
+            print "o.k. I'll try to run anyway..."
+
     print "completed get_config"
     config_handle.close()
         
+    ################################################ 
     # Check system health - log locally - gather overall status info
     #
     run_all_checks(scripts_dir, status)
 
+    ###############################################
+    # Final config file stuff
     # Open, write entire config file out, close
     # 
     if config_p == 1:
@@ -278,6 +303,9 @@ def main():
         config_p.write(config_handle)
         config_handle.close()
  
+    ################################################
+    # Status and logging stuff
+    # 
     # Post overall status to server, if available
     # TODO: Use system primary interface mac as key to a unique, meaningless id instead of this hardcoded test string
     #
