@@ -1,7 +1,7 @@
 h2gc
 ====
 
-This is all very theoretical as not much works, yet.  But since you are here, I assume you are wondering what this is.
+NOTE: This is not currently maintained, but I do maintain that the idea of a full-featured, cross platform, peer-peer monitoring client is important.  I developed this for the Hacker Dojo reverse job fair.
 
 The HitchHikers Guide to your Computer (H2GC) is a program that aims to give ordinary people a fighting chance to learn about and solve their own computer problems.
 
