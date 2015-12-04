@@ -1,7 +1,7 @@
 h2gc
 ====
 
-NOTE: This is not currently maintained, but I do maintain that the idea of a full-featured, cross platform, peer-peer monitoring client is important.  I developed this for the Hacker Dojo reverse job fair.
+NOTE: This is not currently maintained.  I maintain that the idea of a full-featured, cross platform, open-source, peer-peer monitoring client is important.  I developed this minimal prototype of that (not peer to peer but with some neat added features) for the Hacker Dojo reverse job fair.
 
 The HitchHikers Guide to your Computer (H2GC) is a program that aims to give ordinary people a fighting chance to learn about and solve their own computer problems.
 
@@ -42,11 +42,11 @@ On other systems (ios, android), one is required to build graphical tools to mak
 Future Stuff: 
 -------------
 
-Experimentally, a server component of H2GC is also available.  We'll call it the H2GC server.  It is meant to be run online by an expert sysadmin.  Here's where I reveal my true nerd self and drop into technical jargon.  DON'T PANIC. 
+Experimentally, a server component of H2GC is also available in this repo.  We'll call it the H2GC server.  It is meant to be run online by an expert sysadmin.  Here's where I reveal my true nerd self and drop into technical jargon.  DON'T PANIC. 
 
 The current H2GC server is simple and lightweight - it ferries non-sensitive data sent from the client to other services, such as monitoring systems (nagios, observium, zenoss) or helpdesk systems (hosted by your IT guy/gal or in google apps, salesforce, zendesk, etc.).
 
-As we are going with the standalone server idea for now: Packages of H2GC, and possibly other tools, may need to be spit out by the H2GC server as resources for update systems (puppet, chef, OS updaters, etc.).  The design isn't fully baked yet, but the idea of the server is to insulate clients from having to integrate with various cloud services and internal network systems - so those integrations are all fun little projects that can be done as well.  
+As we are going with the standalone server idea for now: In the future, packages of H2GC, and possibly other tools, may need to be spit out by the H2GC server as resources for update systems (puppet, chef, OS updaters, etc.).  The design isn't fully baked yet, but the idea of the server is to insulate clients from having to integrate with various cloud services and internal network systems - so those integrations are all fun little projects that can be done as well.  
 
 A better idea than the H2GC server is probably to make H2GC, at least partially, a peer-peer system.  Here I'll have to wave my hands a bit.  H2GC clients could connect to one another through broadcast messages or an H2GC website, or a pool of available bittorrent systems.  Trusted peer groups could be formed, a trivial exercise left for the implementor ;).  If you had a system like that, you could make each client a monitoring node in a larger group, and everyone could get central reporting of what the network appears to be like.  You would want to choose an internet scale method for this, if you could.
 
@@ -64,4 +64,4 @@ Any questions just ask. richbodo@gmail.com
 WANT TO WORK ON THIS?
 =====================
 
-"I would probably *love* to work with you.  Just clone the repo and contact me.  We'll get rolling.  Don't forget your towel. 
+I would probably *love* to work with you.  Just clone the repo and contact me.  We'll get rolling.  Don't forget your towel. 
